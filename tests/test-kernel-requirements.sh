@@ -97,6 +97,8 @@ grep -Fq '0x00 | (par->bgr << 3)' "$driver_patch"
 grep -Fq '0xA0 | (par->bgr << 3)' "$driver_patch"
 
 grep -Fq 'define KernelPackage/fb-tft-nv3007' "$package_patch"
+grep -Fq 'SECTION:=kernel' "$package_patch"
+grep -Fq 'CATEGORY:=Kernel modules' "$package_patch"
 grep -Fq 'KCONFIG:=CONFIG_FB_TFT_NV3007' "$package_patch"
 grep -Fq '$(LINUX_DIR)/drivers/staging/fbtft/fb_nv3007.ko' "$package_patch"
 grep -Fq '$(eval $(call KernelPackage,fb-tft-nv3007))' "$package_patch"
