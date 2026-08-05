@@ -336,7 +336,6 @@ for symbol in \
 	CONFIG_PACKAGE_luci-app-fancontrol \
 	CONFIG_PACKAGE_luci-i18n-base-zh-cn \
 	CONFIG_PACKAGE_luci-i18n-fancontrol-zh-cn \
-	CONFIG_PACKAGE_luci-i18n-daede-zh-cn \
 	CONFIG_PACKAGE_luci-i18n-ttyd-zh-cn \
 	CONFIG_PACKAGE_luci-i18n-ddns-zh-cn \
 	CONFIG_PACKAGE_luci-i18n-watchcat-zh-cn \
@@ -351,6 +350,8 @@ for symbol in \
 	CONFIG_PACKAGE_pciutils; do
 	assert_effective_y full "$symbol"
 done
+
+assert_not_effective_y full CONFIG_PACKAGE_luci-i18n-daede-zh-cn
 
 # Rescue retains only recovery-oriented services and its storage/display stack.
 for symbol in \
