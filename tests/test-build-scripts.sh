@@ -396,7 +396,7 @@ printf 'flock %s\n' "$*" >>"$MOCK_LOG"
 exit 0
 EOF
 
-chmod 0755 "$MOCKBIN"/*
+chmod 0755 "$SOURCE/scripts/kconfig.pl" "$MOCKBIN"/*
 
 IMAGE="$SOURCE/bin/targets/mediatek/filogic/immortalwrt-mediatek-filogic-edgepi_e87n-squashfs-sysupgrade.bin"
 MANIFEST="$SOURCE/bin/targets/mediatek/filogic/immortalwrt-mediatek-filogic-edgepi_e87n.manifest"
