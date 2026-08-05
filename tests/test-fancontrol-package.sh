@@ -1,7 +1,10 @@
 #!/bin/sh
+# The sourced package scripts provide the variables and functions exercised here.
+# Literal Makefile expressions must not expand in this test process.
+# shellcheck disable=SC1090,SC2016,SC2034,SC2154
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 daemon="$root/package/e87n/fancontrol/files/usr/sbin/fancontrol"
 init="$root/package/e87n/fancontrol/files/etc/init.d/fancontrol"
 luci_mk="$root/package/e87n/luci-app-fancontrol/Makefile"
