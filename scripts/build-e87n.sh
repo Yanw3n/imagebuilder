@@ -38,8 +38,8 @@ if grep -q '^SKIP: resolved config validation:' "$policy_log"; then
 fi
 
 cp "$REPO_ROOT/configs/common.config" "$SOURCE_DIR/.config"
-"$SOURCE_DIR/scripts/kconfig.pl" + "$REPO_ROOT/configs/$PROFILE.config" \
-  "$SOURCE_DIR/.config" >"$SOURCE_DIR/.config.e87n-new"
+"$SOURCE_DIR/scripts/kconfig.pl" + "$SOURCE_DIR/.config" \
+  "$REPO_ROOT/configs/$PROFILE.config" >"$SOURCE_DIR/.config.e87n-new"
 mv "$SOURCE_DIR/.config.e87n-new" "$SOURCE_DIR/.config"
 make -C "$SOURCE_DIR" defconfig
 
