@@ -1,0 +1,18 @@
+{
+  "luci-app-fancontrol": {
+    "description": "Grant access to fan-control configuration and status",
+    "read": {
+      "ubus": {
+        "fancontrol": [ "status" ]
+      },
+      "uci": [ "fancontrol" ]
+    },
+    "write": {
+      "ubus": {
+        "fancontrol": [ "restart" ],
+        "uci": [ "get", "set", "commit", "apply" ]
+      },
+      "uci": [ "fancontrol" ]
+    }
+  }
+}

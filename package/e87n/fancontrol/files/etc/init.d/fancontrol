@@ -1,0 +1,42 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=01
+USE_PROCD=1
+
+NAME=fancontrol
+PROG=/usr/sbin/$NAME
+
+start_service() {
+	config_load "$NAME"
+	local enable
+	config_get_bool enable settings enable 1
+	[ "$enable" = "1" ] || { logger -t "$NAME" 'disabled by UCI'; return 0; }
+
+	procd_open_instance
+	procd_set_param command "$PROG"
+	procd_set_param respawn 3600 5 5
+	procd_close_instance
+}
+
+reload() {
+	reload_service
+}
+
+reload_service() {
+	config_load "$NAME"
+	local enable
+	config_get_bool enable settings enable 1
+	if [ "$enable" = "1" ]; then
+		logger -t "$NAME" 'restarting after UCI configuration change'
+		procd_kill "$NAME"
+		rc_procd start_service
+	else
+		logger -t "$NAME" 'stopping because UCI disabled fan control'
+		procd_kill "$NAME"
+	fi
+}
+
+service_triggers() {
+	procd_add_reload_trigger "$NAME"
+}

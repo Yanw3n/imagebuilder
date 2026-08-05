@@ -1,0 +1,22 @@
+/.worktrees/
+/work/
+/work-test/
+/out/
+/dl/
+/.private/
+/.config
+/backup/
+/backups/
+*.bak
+*.backup
+*.bin
+*.img
+*.img.gz
+*.itb
+*.tar.gz
+!package/e87n/fancontrol/files/usr/bin/fancontrol
+
+# Supplied E87N firmware and router-specific information must never enter the
+# public source repository, even through `git add -A`.
+/e87n-info.txt
+/e87n-fan-info.txt

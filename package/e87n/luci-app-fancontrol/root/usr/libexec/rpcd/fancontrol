@@ -1,0 +1,21 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+
+STATUS_FILE=/var/run/fancontrol/status.json
+
+case "$1" in
+	list) printf '%s\n' '{"status":{},"restart":{}}' ;;
+	call)
+		case "$2" in
+			status) [ -r "$STATUS_FILE" ] && cat "$STATUS_FILE" || printf '%s\n' '{"running":false,"error":"no status available"}' ;;
+			restart)
+				if /etc/init.d/fancontrol restart >/dev/null 2>&1; then
+					printf '%s\n' '{"ok":true}'
+				else
+					printf '%s\n' '{"ok":false,"error":"restart failed"}'
+					exit 1
+				fi ;;
+			*) exit 1 ;;
+		esac ;;
+	*) exit 1 ;;
+esac
