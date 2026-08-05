@@ -176,6 +176,7 @@ validate_manifest() {
 		for symbol in \
 			CONFIG_PACKAGE_dae CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daede \
 			CONFIG_PACKAGE_adguardhome CONFIG_PACKAGE_tailscale CONFIG_PACKAGE_python3 \
+			CONFIG_PACKAGE_bridger \
 			CONFIG_PACKAGE_kmod-wireguard CONFIG_PACKAGE_wireguard-tools \
 			CONFIG_PACKAGE_luci-proto-wireguard \
 			CONFIG_PACKAGE_python3-pip CONFIG_PACKAGE_python3-openssl \
@@ -266,6 +267,7 @@ validate_resolved_configs() {
 			for symbol in \
 				CONFIG_PACKAGE_dae CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daede \
 				CONFIG_PACKAGE_adguardhome CONFIG_PACKAGE_tailscale CONFIG_PACKAGE_python3 \
+				CONFIG_PACKAGE_bridger \
 				CONFIG_PACKAGE_kmod-wireguard CONFIG_PACKAGE_wireguard-tools \
 				CONFIG_PACKAGE_luci-proto-wireguard \
 				CONFIG_PACKAGE_python3-pip CONFIG_PACKAGE_python3-openssl \
@@ -385,7 +387,7 @@ for symbol in \
 	assert_effective_y rescue "$symbol"
 done
 
-# These common selections must be explicitly overridden by rescue.
+# These common or target-default selections must be explicitly overridden by rescue.
 for symbol in \
 	CONFIG_KERNEL_BPF_EVENTS \
 	CONFIG_KERNEL_BPF_STREAM_PARSER \
@@ -400,6 +402,7 @@ for symbol in \
 	CONFIG_PACKAGE_luci-proto-wireguard \
 	CONFIG_PACKAGE_kmod-nft-socket \
 	CONFIG_PACKAGE_kmod-nft-tproxy \
+	CONFIG_PACKAGE_bridger \
 	CONFIG_PACKAGE_nvme-cli \
 	CONFIG_PACKAGE_smartmontools; do
 	assert_effective_n rescue "$symbol"
@@ -412,6 +415,7 @@ for symbol in \
 	CONFIG_PACKAGE_luci-app-daede \
 	CONFIG_PACKAGE_adguardhome \
 	CONFIG_PACKAGE_tailscale \
+	CONFIG_PACKAGE_bridger \
 	CONFIG_PACKAGE_kmod-wireguard \
 	CONFIG_PACKAGE_wireguard-tools \
 	CONFIG_PACKAGE_luci-proto-wireguard \
