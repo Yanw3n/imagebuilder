@@ -41,7 +41,7 @@ assert_not_effective_y() {
 
 assert_no_enabled_wifi() {
 	file=$1
-	wifi_re='^CONFIG_PACKAGE_(iw|iw-full|iwinfo|libiwinfo([_-].*|[0-9]+)?|ucode-mod-nl80211|wireless-regdb|wifi-scripts|wpad([_-].*)?|hostapd([_-].*)?|wpa-(supplicant|cli)([_-].*)?|kmod-(cfg80211|mac80211)|luci-(app|i18n)-[^=]*(wifi|wireless)[^=]*|kmod-[^=]*(wifi|wireless|wlan|80211)[^=]*|(kmod-)?(adm8211|airo|atmel|b43|brcm[0-9a-z]*|carl9170|hermes|iwl[0-9a-z]*|libertas|marvell|mt76|mt79|mwifiex|orinoco|p54|prism54|qtnfmac|rsi91|rt[0-9a-z]*|ti-wl|wil6210|wl12|wl18|wlcore|zd1211|zydas|ath[0-9a-z]*|rtl[0-9a-z]*)[^=]*|[^=]*(adm8211|airo|atmel|b43|brcm[0-9a-z]*|carl9170|hermes|iwl[0-9a-z]*|libertas|marvell|mt76|mt79|mwifiex|orinoco|p54|prism54|qtnfmac|rsi91|rt[0-9a-z]*|ti-wl|wil6210|wl12|wl18|wlcore|zd1211|zydas|ath[0-9a-z]*|rtl[0-9a-z]*)[^=]*firmware[^=]*)=y$'
+	wifi_re='^CONFIG_PACKAGE_(iw|iw-full|iwinfo|ucode-mod-nl80211|wireless-regdb|wifi-scripts|wpad([_-].*)?|hostapd([_-].*)?|wpa-(supplicant|cli)([_-].*)?|kmod-(cfg80211|mac80211)|luci-(app|i18n)-[^=]*(wifi|wireless)[^=]*|kmod-[^=]*(wifi|wireless|wlan|80211)[^=]*|(kmod-)?(adm8211|airo|atmel|b43|brcm[0-9a-z]*|carl9170|hermes|iwl[0-9a-z]*|libertas|marvell|mt76|mt7915|mt7916|mt7921|mt7922|mt7992|mt7996|mwifiex|orinoco|p54|prism54|qtnfmac|rsi91|rt[0-9a-z]*|ti-wl|wil6210|wl12|wl18|wlcore|zd1211|zydas|ath[0-9a-z]*|rtl[0-9a-z]*)[^=]*|[^=]*(adm8211|airo|atmel|b43|brcm[0-9a-z]*|carl9170|hermes|iwl[0-9a-z]*|libertas|marvell|mt76|mt7915|mt7916|mt7921|mt7922|mt7992|mt7996|mwifiex|orinoco|p54|prism54|qtnfmac|rsi91|rt[0-9a-z]*|ti-wl|wil6210|wl12|wl18|wlcore|zd1211|zydas|ath[0-9a-z]*|rtl[0-9a-z]*)[^=]*firmware[^=]*)=y$'
 	matches=$(grep -E "$wifi_re" "$file" || true)
 	if test -n "$matches"; then
 		fail "enabled Wi-Fi package symbol in $file: $matches"
@@ -292,20 +292,25 @@ require_file "$root/configs/rescue.config"
 assert_wifi_detector_rejects iw 'CONFIG_PACKAGE_iw=y'
 assert_wifi_detector_rejects kmod-cfg80211 'CONFIG_PACKAGE_kmod-cfg80211=y'
 assert_wifi_detector_rejects kmod-rt2800-usb 'CONFIG_PACKAGE_kmod-rt2800-usb=y'
+assert_wifi_detector_rejects kmod-mt7915e 'CONFIG_PACKAGE_kmod-mt7915e=y'
+assert_wifi_detector_rejects mt7996-firmware 'CONFIG_PACKAGE_kmod-mt7996-firmware=y'
 assert_wifi_detector_rejects brcmfmac-firmware 'CONFIG_PACKAGE_brcmfmac-firmware-43602a1-pcie=y'
-assert_wifi_detector_rejects libiwinfo 'CONFIG_PACKAGE_libiwinfo=y'
-assert_wifi_detector_rejects libiwinfo-data 'CONFIG_PACKAGE_libiwinfo-data=y'
-assert_wifi_detector_rejects libiwinfo-lua 'CONFIG_PACKAGE_libiwinfo-lua=y'
-assert_wifi_detector_rejects libiwinfo-abi 'CONFIG_PACKAGE_libiwinfo20230701=y'
 assert_wifi_detector_rejects ucode-mod-nl80211 'CONFIG_PACKAGE_ucode-mod-nl80211=y'
+
+# LuCI uses iwinfo as a generic hardware-information API, while this PHY
+# firmware drives the E87N's wired 2.5G ports; neither enables a Wi-Fi radio.
+allowed_non_wifi=$(mktemp "${TMPDIR:-/tmp}/e87n-non-wifi.XXXXXX")
+printf '%s\n' \
+	'CONFIG_PACKAGE_libiwinfo=y' \
+	'CONFIG_PACKAGE_libiwinfo-data=y' \
+	'CONFIG_PACKAGE_mt7987-2p5g-phy-firmware=y' > "$allowed_non_wifi"
+assert_no_enabled_wifi "$allowed_non_wifi"
+rm -f "$allowed_non_wifi"
+
 assert_manifest_detector_rejects iw 'iw 6.9-r1'
 assert_manifest_detector_rejects kmod-cfg80211 'kmod-cfg80211 6.12-r1'
 assert_manifest_detector_rejects kmod-rt2800-usb 'kmod-rt2800-usb 6.12-r1'
 assert_manifest_detector_rejects brcmfmac-firmware 'brcmfmac-firmware-43602a1-pcie 20250311-r1'
-assert_manifest_detector_rejects libiwinfo 'libiwinfo 20250613-r1'
-assert_manifest_detector_rejects libiwinfo-data 'libiwinfo-data 20250613-r1'
-assert_manifest_detector_rejects libiwinfo-lua 'libiwinfo-lua 20250613-r1'
-assert_manifest_detector_rejects libiwinfo-abi 'libiwinfo20230701 20250613-r1'
 assert_manifest_detector_rejects ucode-mod-nl80211 'ucode-mod-nl80211 2025.06-r1'
 
 # Removing any requested full-profile package must fail this list.
