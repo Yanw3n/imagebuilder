@@ -38,7 +38,7 @@ manifest_hash_before=$(sha256sum "$MANIFEST" | awk '{print $1}')
 config_hash_before=$(sha256sum "$SOURCE_DIR/.config" | awk '{print $1}')
 validation_tmp=$(mktemp "${TMPDIR:-/tmp}/e87n-validation.XXXXXX")
 trap 'rm -f "$validation_tmp"' EXIT
-if ! E87N_IMAGE="$IMAGE" E87N_MANIFEST="$MANIFEST" E87N_DTB= E87N_VMLINUX= \
+if ! E87N_IMAGE="$IMAGE" E87N_MANIFEST="$MANIFEST" E87N_DTB='' E87N_VMLINUX='' \
   IMMORTALWRT_SOURCE="$SOURCE_DIR" \
   "$BASH_BIN" "$REPO_ROOT/scripts/validate-e87n.sh" "$PROFILE" >"$validation_tmp"; then
   die 'artifact validation failed; nothing was published'
@@ -108,6 +108,8 @@ test "$(sha256sum "$staging/$base-sysupgrade.bin" | awk '{print $1}')" = "$image
 test "$(sha256sum "$staging/$base.manifest" | awk '{print $1}')" = "$manifest_hash_before" || die 'manifest changed during validation/copy'
 test "$(sha256sum "$staging/$base.config" | awk '{print $1}')" = "$config_hash_before" || die 'resolved config changed during validation/copy'
 
+# Resolved from the checked repository root at runtime.
+# shellcheck disable=SC1091
 source "$REPO_ROOT/versions.env"
 cat >"$staging/BUILD-MANIFEST.txt" <<EOF
 PROFILE=$PROFILE
