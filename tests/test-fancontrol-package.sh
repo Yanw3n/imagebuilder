@@ -16,6 +16,7 @@ po="$root/package/e87n/luci-app-fancontrol/po/zh_Hans/fancontrol.po"
 fail() { printf '%s\n' "$*" >&2; exit 1; }
 test -x "$daemon" || fail 'missing executable original fancontrol daemon'
 test -f "$root/package/e87n/fancontrol/Makefile" || fail 'missing fancontrol Makefile'
+grep -Fq '# call BuildPackage - OpenWrt buildroot signature' "$luci_mk" || fail 'LuCI package lacks OpenWrt discovery signature'
 grep -q '^define Build/Compile$' "$root/package/e87n/fancontrol/Makefile" || fail 'file-only fancontrol package lacks explicit Build/Compile'
 grep -q '^include \$(TOPDIR)/feeds/luci/luci.mk$' "$luci_mk" || fail 'LuCI package does not use luci.mk'
 test -f "$luci_js" || fail 'missing modern LuCI JavaScript view'
