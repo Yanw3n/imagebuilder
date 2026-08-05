@@ -1,0 +1,32 @@
+From: EdgePi E87N firmware build <noreply@example.invalid>
+Date: Wed, 5 Aug 2026 00:00:00 +0800
+Subject: [PATCH] kernel: include NV3007 in the fbtft core package
+
+Build and package the E87N's NV3007 controller with the existing fbtft
+kernel package. Keeping the module in an existing kernel package makes the
+selection visible to OpenWrt's package metadata scanner.
+---
+ package/kernel/linux/modules/video.mk | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/package/kernel/linux/modules/video.mk b/package/kernel/linux/modules/video.mk
+--- a/package/kernel/linux/modules/video.mk
++++ b/package/kernel/linux/modules/video.mk
+@@ -250,10 +250,12 @@ define KernelPackage/fb-tft
+   KCONFIG:= \
+        CONFIG_FB_BACKLIGHT=y \
+        CONFIG_FB_DEFERRED_IO=y \
+-       CONFIG_FB_TFT
++       CONFIG_FB_TFT \
++       CONFIG_FB_TFT_NV3007
+   FILES:= \
+-       $(LINUX_DIR)/drivers/staging/fbtft/fbtft.ko
+-  AUTOLOAD:=$(call AutoLoad,08,fbtft)
++       $(LINUX_DIR)/drivers/staging/fbtft/fbtft.ko \
++       $(LINUX_DIR)/drivers/staging/fbtft/fb_nv3007.ko
++  AUTOLOAD:=$(call AutoLoad,08,fbtft fb_nv3007)
+ endef
+ 
+ define KernelPackage/fb-tft/description
+-- 
+2.50.1
