@@ -8,6 +8,8 @@ SOURCE_DIR="$WORK_DIR/immortalwrt"
 
 source "$REPO_ROOT/scripts/lib/common.sh"
 require_file "$REPO_ROOT/versions.env"
+# Resolved from the checked repository root at runtime.
+# shellcheck disable=SC1091
 source "$REPO_ROOT/versions.env"
 test ! -e "$SOURCE_DIR" || die "source directory already exists: $SOURCE_DIR"
 
