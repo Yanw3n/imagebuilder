@@ -176,8 +176,6 @@ validate_manifest() {
 		for symbol in \
 			CONFIG_PACKAGE_dae CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daede \
 			CONFIG_PACKAGE_adguardhome CONFIG_PACKAGE_tailscale CONFIG_PACKAGE_python3 \
-			CONFIG_PACKAGE_wireguard-tools \
-			CONFIG_PACKAGE_luci-proto-wireguard \
 			CONFIG_PACKAGE_python3-pip CONFIG_PACKAGE_python3-openssl \
 			CONFIG_PACKAGE_python3-sqlite3 CONFIG_PACKAGE_vlmcsd \
 			CONFIG_PACKAGE_luci-app-vlmcsd; do
@@ -266,8 +264,6 @@ validate_resolved_configs() {
 			for symbol in \
 				CONFIG_PACKAGE_dae CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daede \
 				CONFIG_PACKAGE_adguardhome CONFIG_PACKAGE_tailscale CONFIG_PACKAGE_python3 \
-				CONFIG_PACKAGE_wireguard-tools \
-				CONFIG_PACKAGE_luci-proto-wireguard \
 				CONFIG_PACKAGE_python3-pip CONFIG_PACKAGE_python3-openssl \
 				CONFIG_PACKAGE_python3-sqlite3 CONFIG_PACKAGE_vlmcsd \
 				CONFIG_PACKAGE_luci-app-vlmcsd CONFIG_PACKAGE_ethtool \
@@ -387,8 +383,6 @@ done
 
 # These common selections must be explicitly overridden by rescue.
 for symbol in \
-	CONFIG_PACKAGE_wireguard-tools \
-	CONFIG_PACKAGE_luci-proto-wireguard \
 	CONFIG_PACKAGE_nvme-cli \
 	CONFIG_PACKAGE_smartmontools; do
 	assert_effective_n rescue "$symbol"
@@ -401,8 +395,6 @@ for symbol in \
 	CONFIG_PACKAGE_luci-app-daede \
 	CONFIG_PACKAGE_adguardhome \
 	CONFIG_PACKAGE_tailscale \
-	CONFIG_PACKAGE_wireguard-tools \
-	CONFIG_PACKAGE_luci-proto-wireguard \
 	CONFIG_PACKAGE_python3 \
 	CONFIG_PACKAGE_python3-pip \
 	CONFIG_PACKAGE_python3-openssl \
