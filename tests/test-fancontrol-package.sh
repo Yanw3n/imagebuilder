@@ -79,9 +79,11 @@ printf '0\n' > "$tmp/hwmon/hwmon7/pwm1"
 printf 'cpu-thermal\n' > "$tmp/thermal/thermal_zone3/type"
 printf '50000\n' > "$tmp/thermal/thermal_zone3/temp"
 
-FANCONTROL_LIBRARY=1 \
-HWMON_ROOT="$tmp/hwmon" THERMAL_ROOT="$tmp/thermal" \
-STATUS_FILE="$tmp/status" FANCONTROL_LOG="$tmp/log" \
+FANCONTROL_LIBRARY=1
+HWMON_ROOT="$tmp/hwmon"
+THERMAL_ROOT="$tmp/thermal"
+STATUS_FILE="$tmp/status"
+FANCONTROL_LOG="$tmp/log"
 . "$daemon"
 
 enable=1 mode=1 manual_speed=40 interval=1
