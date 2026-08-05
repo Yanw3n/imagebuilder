@@ -1,0 +1,274 @@
+name: Build validated E87N firmware
+
+'on':
+  workflow_dispatch:
+    inputs:
+      profiles:
+        description: Firmware profiles to build
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - full
+          - rescue
+      publish_release:
+        description: Publish a release after both profiles pass
+        required: true
+        default: false
+        type: boolean
+      make_jobs:
+        description: Positive number of parallel make jobs
+        required: true
+        default: '4'
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e87n-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      profiles: ${{ steps.select.outputs.profiles }}
+      make_jobs: ${{ steps.select.outputs.make_jobs }}
+      immortalwrt_commit: ${{ steps.select.outputs.immortalwrt_commit }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Validate inputs and select profiles
+        id: select
+        shell: bash
+        env:
+          SELECTED_PROFILES: ${{ inputs.profiles }}
+          REQUESTED_MAKE_JOBS: ${{ inputs.make_jobs }}
+        run: |
+          set -euo pipefail
+          [[ "$REQUESTED_MAKE_JOBS" =~ ^[1-9][0-9]*$ ]]
+          profiles=$(python3 -c 'import json,sys; choices={"both":["full","rescue"],"full":["full"],"rescue":["rescue"]}; print(json.dumps(choices[sys.argv[1]],separators=(",",":")))' "$SELECTED_PROFILES")
+          # shellcheck source=versions.env
+          source versions.env
+          [[ "$IMMORTALWRT_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          printf 'profiles=%s\n' "$profiles" >> "$GITHUB_OUTPUT"
+          printf 'make_jobs=%s\n' "$REQUESTED_MAKE_JOBS" >> "$GITHUB_OUTPUT"
+          printf 'immortalwrt_commit=%s\n' "$IMMORTALWRT_COMMIT" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: ${{ fromJSON(needs.plan.outputs.profiles) }}
+    env:
+      IMMORTALWRT_COMMIT: ${{ needs.plan.outputs.immortalwrt_commit }}
+      MAKE_JOBS: ${{ needs.plan.outputs.make_jobs }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Report and reclaim runner storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /home/runner/.nuget/packages
+          sudo rm -rf /home/runner/.local/share/NuGet
+          sudo rm -rf /root/.nuget/packages
+          df -h
+
+      - name: Install locked-source build and validation dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+            bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk \
+            gettext gcc-multilib g++-multilib git gnutls-dev gperf haveged help2man intltool \
+            lib32gcc-s1 libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev \
+            libmpc-dev libmpfr-dev libncurses-dev libpython3-dev libreadline-dev libssl-dev \
+            libtool libyaml-dev libz-dev lld llvm lrzsz mkisofs msmtp nano ninja-build p7zip \
+            p7zip-full patch pkgconf python3 python3-pip python3-ply python3-docutils \
+            python3-pyelftools python3-yaml qemu-utils re2c rsync scons shellcheck \
+            squashfs-tools subversion swig texinfo u-boot-tools uglifyjs upx-ucl unzip vim \
+            wget xmlto xxd zlib1g-dev zstd
+          actionlint_version=v1.7.7
+          install_dir="$RUNNER_TEMP/actionlint-bin"
+          mkdir -p "$install_dir"
+          GOBIN="$install_dir" go install "github.com/rhysd/actionlint/cmd/actionlint@$actionlint_version"
+          sudo install -m 0755 "$install_dir/actionlint" /usr/local/bin/actionlint
+          actionlint -version
+
+      - name: Static checks before source preparation
+        shell: bash
+        run: |
+          set -euo pipefail
+          actionlint .github/workflows/build-e87n.yml
+          shellcheck scripts/*.sh scripts/lib/*.sh tests/*.sh
+          bash tests/test-build-scripts.sh
+          bash tests/test-config-fragments.sh
+          bash tests/test-e87n-platform.sh
+          bash tests/test-fancontrol-package.sh
+          bash tests/test-kernel-requirements.sh
+          bash tests/test-prepare-source.sh
+          bash tests/test-repository-safety.sh
+          bash tests/test-workflow.sh
+
+      - name: Prepare locked source and feeds
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK_DIR="$GITHUB_WORKSPACE/work" bash scripts/prepare-source.sh
+
+      - name: Cache locked source downloads
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: work/immortalwrt/dl
+          key: ${{ runner.os }}-immortalwrt-dl-${{ env.IMMORTALWRT_COMMIT }}
+
+      - name: Resolve locked configuration policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          policy_output=$(IMMORTALWRT_SOURCE="$GITHUB_WORKSPACE/work/immortalwrt" \
+            bash tests/test-config-fragments.sh)
+          printf '%s\n' "$policy_output"
+          awk '/^SKIP:/ { bad=1 } END { exit bad }' <<< "$policy_output"
+          grep -qx 'PASS: resolved full and rescue configs' <<< "$policy_output"
+
+      - name: Build and collect validated profile
+        shell: bash
+        env:
+          PROFILE: ${{ matrix.profile }}
+        run: |
+          set -euo pipefail
+          install_dir="$RUNNER_TEMP/e87n-bin"
+          mkdir -p "$install_dir"
+          printf '%s\n' '#!/bin/sh' 'printf "%s\n" "${E87N_MAKE_JOBS:?}"' > "$install_dir/nproc"
+          chmod 0755 "$install_dir/nproc"
+          PATH="$install_dir:$PATH" E87N_MAKE_JOBS="$MAKE_JOBS" \
+            WORK_DIR="$GITHUB_WORKSPACE/work" bash scripts/build-e87n.sh "$PROFILE"
+          IMMORTALWRT_SOURCE="$GITHUB_WORKSPACE/work/immortalwrt" \
+            bash scripts/validate-e87n.sh "$PROFILE" > "$RUNNER_TEMP/e87n-validation-second-pass"
+          cmp "$RUNNER_TEMP/e87n-validation-second-pass" "out/$PROFILE/VALIDATION.txt"
+
+      - name: Verify exact profile publication
+        shell: bash
+        env:
+          PROFILE: ${{ matrix.profile }}
+        run: |
+          set -euo pipefail
+          base="edgepi-e87n-immortalwrt-25.12-$PROFILE"
+          profile_dir="out/$PROFILE"
+          expected_files=$(printf '%s\n' \
+            BUILD-MANIFEST.txt SHA256SUMS VALIDATION.txt \
+            "$base-sysupgrade.bin" "$base.config" "$base.manifest" | sort)
+          actual_files=$(find "$profile_dir" -mindepth 1 -maxdepth 1 -printf '%f\n' | sort)
+          test "$actual_files" = "$expected_files"
+          non_regular=$(find "$profile_dir" -mindepth 1 -maxdepth 1 ! -type f -printf '%f\n')
+          test -z "$non_regular"
+          pushd "$profile_dir"
+          sha256sum -c SHA256SUMS
+          grep -qx 'VALIDATION=PASS' VALIDATION.txt
+          grep -qx "PROFILE=$PROFILE" BUILD-MANIFEST.txt
+          popd
+
+      - name: Upload validated profile
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: e87n-${{ matrix.profile }}
+          path: out/${{ matrix.profile }}
+          if-no-files-found: error
+          retention-days: 14
+          include-hidden-files: false
+
+  release:
+    needs: [plan, build]
+    if: ${{ inputs.profiles == 'both' && inputs.publish_release == true }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Download full profile
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: e87n-full
+          path: release-input/full
+
+      - name: Download rescue profile
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: e87n-rescue
+          path: release-input/rescue
+
+      - name: Verify downloaded full profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='edgepi-e87n-immortalwrt-25.12-full'
+          profile_dir='release-input/full'
+          expected_files=$(printf '%s\n' \
+            BUILD-MANIFEST.txt SHA256SUMS VALIDATION.txt \
+            "$base-sysupgrade.bin" "$base.config" "$base.manifest" | sort)
+          actual_files=$(find "$profile_dir" -mindepth 1 -maxdepth 1 -printf '%f\n' | sort)
+          test "$actual_files" = "$expected_files"
+          non_regular=$(find "$profile_dir" -mindepth 1 -maxdepth 1 ! -type f -printf '%f\n')
+          test -z "$non_regular"
+          pushd "$profile_dir"
+          sha256sum -c SHA256SUMS
+          grep -qx 'VALIDATION=PASS' VALIDATION.txt
+          grep -qx 'PROFILE=full' BUILD-MANIFEST.txt
+          popd
+
+      - name: Verify downloaded rescue profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='edgepi-e87n-immortalwrt-25.12-rescue'
+          profile_dir='release-input/rescue'
+          expected_files=$(printf '%s\n' \
+            BUILD-MANIFEST.txt SHA256SUMS VALIDATION.txt \
+            "$base-sysupgrade.bin" "$base.config" "$base.manifest" | sort)
+          actual_files=$(find "$profile_dir" -mindepth 1 -maxdepth 1 -printf '%f\n' | sort)
+          test "$actual_files" = "$expected_files"
+          non_regular=$(find "$profile_dir" -mindepth 1 -maxdepth 1 ! -type f -printf '%f\n')
+          test -z "$non_regular"
+          pushd "$profile_dir"
+          sha256sum -c SHA256SUMS
+          grep -qx 'VALIDATION=PASS' VALIDATION.txt
+          grep -qx 'PROFILE=rescue' BUILD-MANIFEST.txt
+          popd
+
+      - name: Create collision-safe validated release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          short_sha=${GITHUB_SHA:0:12}
+          tag="e87n-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-$short_sha"
+          title="Validated E87N firmware $short_sha (run $GITHUB_RUN_ID.$GITHUB_RUN_ATTEMPT)"
+          [[ "$tag" =~ ^e87n-[0-9]+-[0-9]+-[0-9a-f]{12}$ ]]
+          gh release create "$tag" \
+            "release-input/full/edgepi-e87n-immortalwrt-25.12-full-sysupgrade.bin" \
+            "release-input/rescue/edgepi-e87n-immortalwrt-25.12-rescue-sysupgrade.bin" \
+            --target "$GITHUB_SHA" \
+            --title "$title" \
+            --notes 'Validated full and rescue E87N sysupgrade images. Verify the complete metadata and SHA256SUMS in the matching Actions artifacts.'
