@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
+# shellcheck disable=SC1091
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 common="$root/configs/common.config"
 
 fail() {
