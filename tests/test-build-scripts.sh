@@ -38,7 +38,11 @@ touch "$SOURCE/Makefile"
 cat >"$SOURCE/scripts/kconfig.pl" <<'EOF'
 #!/usr/bin/env sh
 test "$1" = +
-cat "$3" "$2"
+case "$2:$3" in
+  */.config:*/configs/full.config|*/.config:*/configs/rescue.config) ;;
+  *) printf 'unexpected kconfig merge order: %s then %s\n' "$2" "$3" >&2; exit 2 ;;
+esac
+cat "$2" "$3"
 EOF
 
 cat >"$MOCKBIN/git" <<'EOF'
@@ -429,7 +433,7 @@ unset MOCK_DROP_SYMBOL
 test ! -e "$OUT/full" || fail 'disappearing Kconfig selection published artifacts'
 
 write_manifest rescue
-export MOCK_FORCE_MODULE=CONFIG_PACKAGE_nvme-cli
+export MOCK_FORCE_MODULE=CONFIG_PACKAGE_kmod-wireguard
 expect_failure forbidden-module "$BASH" "$BUILD" rescue
 unset MOCK_FORCE_MODULE
 test ! -e "$OUT/rescue" || fail 'forbidden =m Kconfig selection published artifacts'
@@ -564,8 +568,8 @@ grep -qx 'PROFILE=full' "$OUT/full/BUILD-MANIFEST.txt"
 write_manifest rescue
 cp "$MANIFEST" "$TMP/good-rescue.manifest"
 for forbidden in \
-  dae adguardhome tailscale python3 vlmcsd ttyd ddns-scripts \
-  watchcat luci-app-argon-config luci-i18n-ttyd-zh-cn iw; do
+  dae adguardhome tailscale python3 vlmcsd wireguard-tools ttyd ddns-scripts \
+  watchcat luci-app-argon-config luci-i18n-ttyd-zh-cn iw kmod-xdp-sockets-diag; do
   cp "$TMP/good-rescue.manifest" "$MANIFEST"
   printf '%s 9.9-r9\n' "$forbidden" >>"$MANIFEST"
   expect_failure "rescue-forbidden-${forbidden//[^A-Za-z0-9]/_}" "$BASH" "$VALIDATE" rescue
