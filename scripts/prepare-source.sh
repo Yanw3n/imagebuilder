@@ -43,6 +43,10 @@ git -C "$SOURCE_DIR/package/feeds/daede" checkout --detach "$DAEDE_COMMIT"
 
 apply_repo_overlays "$SOURCE_DIR"
 
+# feeds install builds package metadata before local packages and kernel-package
+# patches are added. Force the next defconfig to rescan the completed source tree.
+rm -rf "$SOURCE_DIR/tmp"
+
 test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$IMMORTALWRT_COMMIT" || die "ImmortalWrt HEAD is not pinned"
 test "$(git -C "$SOURCE_DIR/feeds/packages" rev-parse HEAD)" = "$PACKAGES_COMMIT" || die "packages HEAD is not pinned"
 test "$(git -C "$SOURCE_DIR/feeds/luci" rev-parse HEAD)" = "$LUCI_COMMIT" || die "LuCI HEAD is not pinned"
