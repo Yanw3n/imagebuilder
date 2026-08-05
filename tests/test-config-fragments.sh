@@ -365,7 +365,7 @@ assert_effective_n rescue CONFIG_PACKAGE_wpad-openssl
 for symbol in \
 	CONFIG_PACKAGE_luci \
 	CONFIG_PACKAGE_luci-i18n-base-zh-cn \
-	CONFIG_PACKAGE_luci-theme-bootstrap \
+	CONFIG_PACKAGE_luci-theme-argon \
 	CONFIG_KERNEL_DEBUG_INFO \
 	CONFIG_KERNEL_DEBUG_INFO_BTF \
 	CONFIG_PACKAGE_dropbear \
@@ -400,7 +400,6 @@ for symbol in \
 	CONFIG_PACKAGE_luci-proto-wireguard \
 	CONFIG_PACKAGE_kmod-nft-socket \
 	CONFIG_PACKAGE_kmod-nft-tproxy \
-	CONFIG_PACKAGE_luci-theme-argon \
 	CONFIG_PACKAGE_nvme-cli \
 	CONFIG_PACKAGE_smartmontools; do
 	assert_effective_n rescue "$symbol"
