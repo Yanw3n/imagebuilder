@@ -42,8 +42,9 @@ assert_not_effective_y() {
 assert_no_enabled_wifi() {
 	file=$1
 	wifi_re='^CONFIG_PACKAGE_(iw|iw-full|iwinfo|libiwinfo([_-].*|[0-9]+)?|ucode-mod-nl80211|wireless-regdb|wifi-scripts|wpad([_-].*)?|hostapd([_-].*)?|wpa-(supplicant|cli)([_-].*)?|kmod-(cfg80211|mac80211)|luci-(app|i18n)-[^=]*(wifi|wireless)[^=]*|kmod-[^=]*(wifi|wireless|wlan|80211)[^=]*|(kmod-)?(adm8211|airo|atmel|b43|brcm[0-9a-z]*|carl9170|hermes|iwl[0-9a-z]*|libertas|marvell|mt76|mt79|mwifiex|orinoco|p54|prism54|qtnfmac|rsi91|rt[0-9a-z]*|ti-wl|wil6210|wl12|wl18|wlcore|zd1211|zydas|ath[0-9a-z]*|rtl[0-9a-z]*)[^=]*|[^=]*(adm8211|airo|atmel|b43|brcm[0-9a-z]*|carl9170|hermes|iwl[0-9a-z]*|libertas|marvell|mt76|mt79|mwifiex|orinoco|p54|prism54|qtnfmac|rsi91|rt[0-9a-z]*|ti-wl|wil6210|wl12|wl18|wlcore|zd1211|zydas|ath[0-9a-z]*|rtl[0-9a-z]*)[^=]*firmware[^=]*)=y$'
-	if grep -E "$wifi_re" "$file"; then
-		fail "enabled Wi-Fi package symbol in $file"
+	matches=$(grep -E "$wifi_re" "$file" || true)
+	if test -n "$matches"; then
+		fail "enabled Wi-Fi package symbol in $file: $matches"
 	fi
 }
 
