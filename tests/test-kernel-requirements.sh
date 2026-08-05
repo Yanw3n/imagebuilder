@@ -8,7 +8,7 @@ cd "$repo_root"
 cfg=configs/common.config
 dts=device/edgepi-e87n/source-overlay/target/linux/mediatek/dts/mt7987a-edgepi-e87n.dts
 driver_patch=device/edgepi-e87n/source-overlay/target/linux/mediatek/patches-6.12/950-fbdev-fbtft-add-nv3007.patch
-package_patch=package/e87n/kmod-fb-tft-nv3007/Makefile
+package_patch=patches/immortalwrt/0002-kernel-package-nv3007-fbtft-driver.patch
 
 test -f "$cfg"
 test -f "$dts"
@@ -41,7 +41,7 @@ required_symbols=(
 	CONFIG_PACKAGE_kmod-fs-ext4=y
 	CONFIG_PACKAGE_kmod-fs-f2fs=y
 	CONFIG_PACKAGE_kmod-fs-btrfs=y
-	CONFIG_PACKAGE_kmod-fb-tft-nv3007=y
+	CONFIG_PACKAGE_kmod-fb-tft=y
 	CONFIG_PACKAGE_luci=y
 	CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
 	CONFIG_PACKAGE_luci-theme-argon=y
@@ -96,12 +96,9 @@ grep -Fq '0x60 | (par->bgr << 3)' "$driver_patch"
 grep -Fq '0x00 | (par->bgr << 3)' "$driver_patch"
 grep -Fq '0xA0 | (par->bgr << 3)' "$driver_patch"
 
-grep -Fq 'define KernelPackage/fb-tft-nv3007' "$package_patch"
-grep -Fq 'SECTION:=kernel' "$package_patch"
-grep -Fq 'CATEGORY:=Kernel modules' "$package_patch"
-grep -Fq 'KCONFIG:=CONFIG_FB_TFT_NV3007' "$package_patch"
+grep -Fq 'CONFIG_FB_TFT_NV3007' "$package_patch"
 grep -Fq '$(LINUX_DIR)/drivers/staging/fbtft/fb_nv3007.ko' "$package_patch"
-grep -Fq '$(eval $(call KernelPackage,fb-tft-nv3007))' "$package_patch"
+grep -Fq 'AUTOLOAD:=$(call AutoLoad,08,fbtft fb_nv3007)' "$package_patch"
 
 if [[ -n "${IMMORTALWRT_SOURCE:-}" ]]; then
 	test -f "$IMMORTALWRT_SOURCE/target/linux/generic/config-6.12"
