@@ -35,6 +35,7 @@ grep -Fq './scripts/feeds install -a' scripts/prepare-source.sh
 grep -Fq 'git clone --filter=blob:none --no-tags "$DAEDE_REPO"' scripts/prepare-source.sh
 grep -Fq 'package/feeds/daede" checkout --detach "$DAEDE_COMMIT"' scripts/prepare-source.sh
 grep -Fq 'apply_repo_overlays "$SOURCE_DIR"' scripts/prepare-source.sh
+grep -Fq 'rm -rf "$SOURCE_DIR/tmp"' scripts/prepare-source.sh
 grep -Fq '"$SOURCE_DIR" rev-parse HEAD)' scripts/prepare-source.sh
 grep -Fq '"$SOURCE_DIR/feeds/packages" rev-parse HEAD)' scripts/prepare-source.sh
 grep -Fq '"$SOURCE_DIR/feeds/luci" rev-parse HEAD)' scripts/prepare-source.sh
