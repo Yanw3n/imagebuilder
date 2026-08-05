@@ -25,10 +25,11 @@ test "$require_line" -lt "$versions_line"
 
 grep -Fq 'git clone --filter=blob:none --no-tags --branch "$IMMORTALWRT_BRANCH"' scripts/prepare-source.sh
 grep -Fq 'checkout --detach "$IMMORTALWRT_COMMIT"' scripts/prepare-source.sh
-grep -Fq 's#^(src-git(-full)? packages' scripts/prepare-source.sh
-grep -Fq '^$PACKAGES_COMMIT' scripts/prepare-source.sh
-grep -Fq 's#^(src-git(-full)? luci' scripts/prepare-source.sh
-grep -Fq '^$LUCI_COMMIT' scripts/prepare-source.sh
+grep -Fq 'src-git packages https://github.com/immortalwrt/packages.git^$PACKAGES_COMMIT' scripts/prepare-source.sh
+grep -Fq 'src-git luci https://github.com/immortalwrt/luci.git^$LUCI_COMMIT' scripts/prepare-source.sh
+if grep -Eq 'src-git (routing|telephony|video)' scripts/prepare-source.sh; then
+  exit 1
+fi
 grep -Fq './scripts/feeds update -a' scripts/prepare-source.sh
 grep -Fq './scripts/feeds install -a' scripts/prepare-source.sh
 grep -Fq 'git clone --filter=blob:none --no-tags "$DAEDE_REPO"' scripts/prepare-source.sh
