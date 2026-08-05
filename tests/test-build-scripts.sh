@@ -396,6 +396,8 @@ printf 'flock %s\n' "$*" >>"$MOCK_LOG"
 exit 0
 EOF
 
+chmod 0755 "$MOCKBIN"/*
+
 IMAGE="$SOURCE/bin/targets/mediatek/filogic/immortalwrt-mediatek-filogic-edgepi_e87n-squashfs-sysupgrade.bin"
 MANIFEST="$SOURCE/bin/targets/mediatek/filogic/immortalwrt-mediatek-filogic-edgepi_e87n.manifest"
 DTB="$SOURCE/build_dir/target-aarch64/linux-mediatek_filogic/linux-6.12/mt7987a-edgepi-e87n.dtb"
