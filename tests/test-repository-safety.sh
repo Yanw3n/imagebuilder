@@ -39,7 +39,9 @@ test -z "$credential_matches"
 network_defaults=files/etc/uci-defaults/99-daed-test-network
 test -f "$network_defaults"
 grep -qx "uci set network.lan.ipaddr='192.168.1.1'" "$network_defaults"
-! grep -Eq 'network\.lan\.(gateway|dns)' "$network_defaults"
+if grep -Eq 'network\.lan\.(gateway|dns)' "$network_defaults"; then
+  exit 1
+fi
 
 # These paths represent supplied firmware, router-specific captures, and
 # backups. They must stay ignored, including when a broad `git add -A` is used.
@@ -62,5 +64,7 @@ for private_path in \
   'e87n-info.txt' \
   'e87n-fan-info.txt' \
   'work-test/'; do
-  ! grep -F -- "$private_path" <<<"$dry_run"
+  if grep -F -- "$private_path" <<<"$dry_run"; then
+    exit 1
+  fi
 done
