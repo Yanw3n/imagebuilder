@@ -176,6 +176,8 @@ validate_manifest() {
 		for symbol in \
 			CONFIG_PACKAGE_dae CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daede \
 			CONFIG_PACKAGE_adguardhome CONFIG_PACKAGE_tailscale CONFIG_PACKAGE_python3 \
+			CONFIG_PACKAGE_kmod-wireguard CONFIG_PACKAGE_wireguard-tools \
+			CONFIG_PACKAGE_luci-proto-wireguard \
 			CONFIG_PACKAGE_python3-pip CONFIG_PACKAGE_python3-openssl \
 			CONFIG_PACKAGE_python3-sqlite3 CONFIG_PACKAGE_vlmcsd \
 			CONFIG_PACKAGE_luci-app-vlmcsd; do
@@ -253,8 +255,8 @@ validate_resolved_configs() {
 
 	for profile in full rescue; do
 		cp "$common" "$source_config"
-		"$source/scripts/kconfig.pl" + "$root/configs/$profile.config" \
-			"$source_config" > "$resolve_tmp/$profile.merged"
+		"$source/scripts/kconfig.pl" + "$source_config" \
+			"$root/configs/$profile.config" > "$resolve_tmp/$profile.merged"
 		cp "$resolve_tmp/$profile.merged" "$source_config"
 		make -C "$source" defconfig
 		cp "$source_config" "$resolve_tmp/$profile.resolved"
@@ -264,6 +266,8 @@ validate_resolved_configs() {
 			for symbol in \
 				CONFIG_PACKAGE_dae CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daede \
 				CONFIG_PACKAGE_adguardhome CONFIG_PACKAGE_tailscale CONFIG_PACKAGE_python3 \
+				CONFIG_PACKAGE_kmod-wireguard CONFIG_PACKAGE_wireguard-tools \
+				CONFIG_PACKAGE_luci-proto-wireguard \
 				CONFIG_PACKAGE_python3-pip CONFIG_PACKAGE_python3-openssl \
 				CONFIG_PACKAGE_python3-sqlite3 CONFIG_PACKAGE_vlmcsd \
 				CONFIG_PACKAGE_luci-app-vlmcsd CONFIG_PACKAGE_ethtool \
@@ -383,6 +387,19 @@ done
 
 # These common selections must be explicitly overridden by rescue.
 for symbol in \
+	CONFIG_KERNEL_BPF_EVENTS \
+	CONFIG_KERNEL_BPF_STREAM_PARSER \
+	CONFIG_KERNEL_CGROUP_BPF \
+	CONFIG_KERNEL_XDP_SOCKETS \
+	CONFIG_PACKAGE_kmod-sched-bpf \
+	CONFIG_PACKAGE_kmod-veth \
+	CONFIG_PACKAGE_kmod-xdp-sockets-diag \
+	CONFIG_PACKAGE_kmod-tun \
+	CONFIG_PACKAGE_kmod-wireguard \
+	CONFIG_PACKAGE_wireguard-tools \
+	CONFIG_PACKAGE_luci-proto-wireguard \
+	CONFIG_PACKAGE_kmod-nft-socket \
+	CONFIG_PACKAGE_kmod-nft-tproxy \
 	CONFIG_PACKAGE_nvme-cli \
 	CONFIG_PACKAGE_smartmontools; do
 	assert_effective_n rescue "$symbol"
@@ -395,6 +412,9 @@ for symbol in \
 	CONFIG_PACKAGE_luci-app-daede \
 	CONFIG_PACKAGE_adguardhome \
 	CONFIG_PACKAGE_tailscale \
+	CONFIG_PACKAGE_kmod-wireguard \
+	CONFIG_PACKAGE_wireguard-tools \
+	CONFIG_PACKAGE_luci-proto-wireguard \
 	CONFIG_PACKAGE_python3 \
 	CONFIG_PACKAGE_python3-pip \
 	CONFIG_PACKAGE_python3-openssl \
