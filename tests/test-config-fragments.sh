@@ -387,10 +387,6 @@ done
 
 # These common selections must be explicitly overridden by rescue.
 for symbol in \
-	CONFIG_KERNEL_BPF_EVENTS \
-	CONFIG_KERNEL_BPF_STREAM_PARSER \
-	CONFIG_KERNEL_CGROUP_BPF \
-	CONFIG_KERNEL_XDP_SOCKETS \
 	CONFIG_PACKAGE_kmod-sched-bpf \
 	CONFIG_PACKAGE_kmod-veth \
 	CONFIG_PACKAGE_kmod-xdp-sockets-diag \
