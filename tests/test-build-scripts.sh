@@ -429,7 +429,7 @@ unset MOCK_DROP_SYMBOL
 test ! -e "$OUT/full" || fail 'disappearing Kconfig selection published artifacts'
 
 write_manifest rescue
-export MOCK_FORCE_MODULE=CONFIG_PACKAGE_wireguard-tools
+export MOCK_FORCE_MODULE=CONFIG_PACKAGE_vlmcsd
 expect_failure forbidden-module "$BASH" "$BUILD" rescue
 unset MOCK_FORCE_MODULE
 test ! -e "$OUT/rescue" || fail 'forbidden =m Kconfig selection published artifacts'
@@ -564,7 +564,7 @@ grep -qx 'PROFILE=full' "$OUT/full/BUILD-MANIFEST.txt"
 write_manifest rescue
 cp "$MANIFEST" "$TMP/good-rescue.manifest"
 for forbidden in \
-  dae adguardhome tailscale python3 vlmcsd wireguard-tools ttyd ddns-scripts \
+  dae adguardhome tailscale python3 vlmcsd ttyd ddns-scripts \
   watchcat luci-app-argon-config luci-i18n-ttyd-zh-cn iw; do
   cp "$TMP/good-rescue.manifest" "$MANIFEST"
   printf '%s 9.9-r9\n' "$forbidden" >>"$MANIFEST"
