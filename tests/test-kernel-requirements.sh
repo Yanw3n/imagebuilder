@@ -56,6 +56,7 @@ for symbol in "${required_symbols[@]}"; do
 	grep -Fqx "$symbol" "$cfg"
 done
 grep -Fqx '# CONFIG_KERNEL_DEBUG_INFO_REDUCED is not set' "$cfg"
+grep -Fqx '# CONFIG_PACKAGE_wpad-openssl is not set' "$cfg"
 
 if grep -Eiq 'mt7992|mt7996' "$cfg"; then
 	printf '%s\n' 'unexpected Wi-Fi package in common config' >&2
