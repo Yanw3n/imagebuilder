@@ -195,12 +195,12 @@ fi
 
 while read -r package _; do
   case "$package" in
-    iw|iw-full|iwinfo|libiwinfo|libiwinfo[0-9]*|libiwinfo-*|libiwinfo_*|ucode-mod-nl80211|wireless-regdb|wifi-scripts|wpad*|hostapd*|wpa-supplicant*|wpa-cli*|kmod-cfg80211|kmod-mac80211|*wifi*|*wireless*|kmod-mt76*|kmod-mt79*|kmod-ath*|kmod-rtl*|brcmfmac-firmware*)
+    iw|iw-full|iwinfo|ucode-mod-nl80211|wireless-regdb|wifi-scripts|wpad*|hostapd*|wpa-supplicant*|wpa-cli*|kmod-cfg80211|kmod-mac80211|*wifi*|*wireless*|kmod-mt76*|kmod-mt7915*|kmod-mt7916*|kmod-mt7921*|kmod-mt7922*|kmod-mt7992*|kmod-mt7996*|kmod-ath*|kmod-rtl*|brcmfmac-firmware*)
       die "$PROFILE manifest contains forbidden Wi-Fi package $package" ;;
   esac
   if test "$PROFILE" = rescue; then
     case "$package" in
-      dae|daed|luci-app-daede|adguardhome|tailscale|tailscaled|python3|python3-*|vlmcsd|luci-app-vlmcsd|kmod-wireguard|wireguard-tools|luci-proto-wireguard|kmod-sched-bpf|kmod-veth|kmod-xdp-sockets-diag|kmod-tun|kmod-nft-socket|kmod-nft-tproxy|nvme-cli|smartmontools|ethtool|ip-full|iperf3|tcpdump|usbutils|pciutils)
+      dae|daed|luci-app-daede|adguardhome|tailscale|tailscaled|python3|python3-*|vlmcsd|luci-app-vlmcsd|wireguard-tools|luci-proto-wireguard|nvme-cli|smartmontools|ethtool|ip-full|iperf3|tcpdump|usbutils|pciutils)
         die "rescue manifest contains forbidden package $package" ;;
     esac
   fi
