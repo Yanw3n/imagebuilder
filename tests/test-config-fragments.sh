@@ -352,6 +352,8 @@ for symbol in \
 done
 
 assert_not_effective_y full CONFIG_PACKAGE_luci-i18n-daede-zh-cn
+assert_effective_n full CONFIG_PACKAGE_wpad-openssl
+assert_effective_n rescue CONFIG_PACKAGE_wpad-openssl
 
 # Rescue retains only recovery-oriented services and its storage/display stack.
 for symbol in \
