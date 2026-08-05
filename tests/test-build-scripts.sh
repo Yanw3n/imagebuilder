@@ -437,7 +437,11 @@ export MOCK_DOWNLOAD_FAIL=1
 : >"$LOG"
 expect_failure failed-download "$BASH" "$BUILD" full
 unset MOCK_DOWNLOAD_FAIL
-grep -q 'download -j8' "$LOG" || fail 'parallel download was not attempted'
+if ! grep -q 'download -j8' "$LOG"; then
+  cat "$TMP/failed-download.stderr" >&2
+  cat "$LOG" >&2
+  fail 'parallel download was not attempted'
+fi
 grep -q 'download -j1 V=s' "$LOG" || fail 'failed download did not receive verbose serial retry'
 test ! -e "$OUT/full" || fail 'failed download published artifacts'
 
