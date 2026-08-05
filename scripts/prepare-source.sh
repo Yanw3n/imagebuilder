@@ -22,13 +22,14 @@ git -C "$SOURCE_DIR" checkout --detach "$IMMORTALWRT_COMMIT"
 
 feeds_conf="$SOURCE_DIR/feeds.conf.default"
 require_file "$feeds_conf"
-sed -i -E \
-  -e "s#^(src-git(-full)? packages [^^[:space:]]+)(\\^[^[:space:]]+)?#\\1^$PACKAGES_COMMIT#" \
-  -e "s#^(src-git(-full)? luci [^^[:space:]]+)(\\^[^[:space:]]+)?#\\1^$LUCI_COMMIT#" \
-  "$feeds_conf"
+cat >"$feeds_conf" <<EOF
+src-git packages https://github.com/immortalwrt/packages.git^$PACKAGES_COMMIT
+src-git luci https://github.com/immortalwrt/luci.git^$LUCI_COMMIT
+EOF
 
-grep -q "^src-git.* packages .*\\^$PACKAGES_COMMIT" "$feeds_conf" || die "packages feed is not pinned"
-grep -q "^src-git.* luci .*\\^$LUCI_COMMIT" "$feeds_conf" || die "luci feed is not pinned"
+test "$(wc -l <"$feeds_conf")" -eq 2 || die "unexpected feed count"
+grep -qx "src-git packages https://github.com/immortalwrt/packages.git^$PACKAGES_COMMIT" "$feeds_conf" || die "packages feed is not pinned"
+grep -qx "src-git luci https://github.com/immortalwrt/luci.git^$LUCI_COMMIT" "$feeds_conf" || die "luci feed is not pinned"
 
 (
   cd "$SOURCE_DIR"
