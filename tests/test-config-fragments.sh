@@ -86,6 +86,13 @@ assert_resolved_y() {
 	file=$1
 	symbol=$2
 	if ! grep -qx "$symbol=y" "$file"; then
+		if test "$symbol" = CONFIG_PACKAGE_luci-app-fancontrol; then
+			printf '%s\n' 'fancontrol LuCI package Kconfig diagnostic:' >&2
+			grep -n -A 14 -B 2 '^config PACKAGE_luci-app-fancontrol$' \
+				"$source/tmp/.config-package.in" >&2 || true
+			grep -E '^(CONFIG_PACKAGE_(fancontrol|rpcd|luci-base|luci-app-fancontrol))=' \
+				"$file" >&2 || true
+		fi
 		fail "resolved config drops $symbol"
 	fi
 }
