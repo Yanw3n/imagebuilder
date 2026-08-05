@@ -8,8 +8,8 @@ match the working vendor runtime.
 ---
  drivers/staging/fbtft/Kconfig     |   7 ++
  drivers/staging/fbtft/Makefile    |   1 +
- drivers/staging/fbtft/fb_nv3007.c | 214 ++++++++++++++++++++++++++++++
- 3 files changed, 222 insertions(+)
+ drivers/staging/fbtft/fb_nv3007.c | 217 ++++++++++++++++++++++++++++++
+ 3 files changed, 225 insertions(+)
  create mode 100644 drivers/staging/fbtft/fb_nv3007.c
 
 diff --git a/drivers/staging/fbtft/Kconfig b/drivers/staging/fbtft/Kconfig
@@ -44,7 +44,7 @@ diff --git a/drivers/staging/fbtft/fb_nv3007.c b/drivers/staging/fbtft/fb_nv3007
 new file mode 100644
 --- /dev/null
 +++ b/drivers/staging/fbtft/fb_nv3007.c
-@@ -0,0 +1,214 @@
+@@ -0,0 +1,217 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * FB driver for the New Vision NV3007 LCD Controller
