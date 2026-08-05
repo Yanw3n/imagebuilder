@@ -57,9 +57,11 @@ jobs:
           # shellcheck source=versions.env
           source versions.env
           [[ "$IMMORTALWRT_COMMIT" =~ ^[0-9a-f]{40}$ ]]
-          printf 'profiles=%s\n' "$profiles" >> "$GITHUB_OUTPUT"
-          printf 'make_jobs=%s\n' "$REQUESTED_MAKE_JOBS" >> "$GITHUB_OUTPUT"
-          printf 'immortalwrt_commit=%s\n' "$IMMORTALWRT_COMMIT" >> "$GITHUB_OUTPUT"
+          {
+            printf 'profiles=%s\n' "$profiles"
+            printf 'make_jobs=%s\n' "$REQUESTED_MAKE_JOBS"
+            printf 'immortalwrt_commit=%s\n' "$IMMORTALWRT_COMMIT"
+          } >> "$GITHUB_OUTPUT"
 
   build:
     needs: plan
@@ -160,6 +162,8 @@ jobs:
           set -euo pipefail
           install_dir="$RUNNER_TEMP/e87n-bin"
           mkdir -p "$install_dir"
+          # The generated wrapper must expand this variable at runtime.
+          # shellcheck disable=SC2016
           printf '%s\n' '#!/bin/sh' 'printf "%s\n" "${E87N_MAKE_JOBS:?}"' > "$install_dir/nproc"
           chmod 0755 "$install_dir/nproc"
           PATH="$install_dir:$PATH" E87N_MAKE_JOBS="$MAKE_JOBS" \
