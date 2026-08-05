@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# The assertions intentionally match unexpanded shell source text.
+# shellcheck disable=SC2016
 set -euo pipefail
 
 source scripts/lib/common.sh
