@@ -20,7 +20,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = "3ae519c988d88d4533c7a6f1b23c71fe82743c2a"
+          EXPECTED_BASE=3ae519c988d88d4533c7a6f1b23c71fe82743c2a
+          git merge-base --is-ancestor "$EXPECTED_BASE" HEAD
+          git diff --quiet "$EXPECTED_BASE" -- . ':(exclude).github/workflows/bootstrap-e87n.yml'
           cat > "$RUNNER_TEMP/e87n.patch.gz.b64" <<'PATCH_B64'
             H4sIAAAAAAAEAOy9aXtbRbYw+hn/imqT005ibU2WPAXzItty4o4Tu22HnL40x96StmwRTa0tOTaE8yRARjJxgIQhNAQI0AxJaGgIGcjz3PtP3hPJ9qf+C3cN
             VXvS3rIDnPee+zwn3VhSzbVq1Zpq1apcIZ8XmrZUqAs9EoaP5UYmcrRSO5IvVo6akUyjUMxpxuBAObxWKorMlkW6ysZRkS8UDVGq5AwRi0b7E4muQjlnrIoo
@@ -698,7 +700,7 @@ jobs:
             06mVh2VA33Khfq1SKY+areao1ixVRtUhEBvkgY/jxLU7++f8ulVUPaR0tcwHPct7e1xxavWy47oHFbdSc8ejultyD+rVcenAbQF9A7dWb7ZqpZ/+DwrubpiY
             SAMA
           PATCH_B64
-          base64 -d "$RUNNER_TEMP/e87n.patch.gz.b64" | gzip -d > "$RUNNER_TEMP/e87n.patch"
+          tr -d '[:space:]' < "$RUNNER_TEMP/e87n.patch.gz.b64" | base64 -d | gzip -d > "$RUNNER_TEMP/e87n.patch"
           git apply --index "$RUNNER_TEMP/e87n.patch"
           rm .github/workflows/bootstrap-e87n.yml
           git add -A
