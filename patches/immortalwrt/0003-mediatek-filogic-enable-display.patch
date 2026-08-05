@@ -1,0 +1,23 @@
+From: EdgePi E87N firmware build <noreply@example.invalid>
+Date: Wed, 5 Aug 2026 00:00:00 +0800
+Subject: [PATCH] mediatek: filogic: enable display feature
+
+The E87N includes an SPI framebuffer display. Advertise display support so
+the framebuffer, fbtft and fbtest packages are selectable for this target.
+---
+ target/linux/mediatek/filogic/target.mk | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/target/linux/mediatek/filogic/target.mk b/target/linux/mediatek/filogic/target.mk
+--- a/target/linux/mediatek/filogic/target.mk
++++ b/target/linux/mediatek/filogic/target.mk
+@@ -2,6 +2,7 @@ ARCH:=aarch64
+ SUBTARGET:=filogic
+ BOARDNAME:=Filogic 8x0 (MT798x)
+ CPU_TYPE:=cortex-a53
++FEATURES+=display
+ DEFAULT_PACKAGES += fitblk kmod-crypto-hw-safexcel wpad-openssl uboot-envtools bridger
+ KERNELNAME:=Image dtbs
+ DEFAULT_PROFILE:=openwrt_one
+-- 
+2.50.1
