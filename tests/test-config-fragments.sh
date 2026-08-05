@@ -86,13 +86,6 @@ assert_resolved_y() {
 	file=$1
 	symbol=$2
 	if ! grep -qx "$symbol=y" "$file"; then
-		if test "$symbol" = CONFIG_PACKAGE_kmod-fb-tft-nv3007; then
-			printf '%s\n' 'NV3007 package Kconfig diagnostic:' >&2
-			grep -n -A 12 -B 2 '^config PACKAGE_kmod-fb-tft-nv3007$' \
-				"$source/tmp/.config-package.in" >&2 || true
-			grep -E '^(CONFIG_GPIO_SUPPORT|CONFIG_PACKAGE_kmod-(fb|fb-tft|fb-tft-nv3007))=' \
-				"$file" >&2 || true
-		fi
 		fail "resolved config drops $symbol"
 	fi
 }
@@ -367,7 +360,7 @@ for symbol in \
 	CONFIG_PACKAGE_kmod-usb-storage-uas \
 	CONFIG_PACKAGE_kmod-nvme \
 	CONFIG_PACKAGE_block-mount \
-	CONFIG_PACKAGE_kmod-fb-tft-nv3007 \
+	CONFIG_PACKAGE_kmod-fb-tft \
 	CONFIG_PACKAGE_fbtest \
 	CONFIG_PACKAGE_fancontrol \
 	CONFIG_PACKAGE_luci-app-fancontrol \
