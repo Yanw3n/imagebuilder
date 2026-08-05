@@ -429,7 +429,7 @@ unset MOCK_DROP_SYMBOL
 test ! -e "$OUT/full" || fail 'disappearing Kconfig selection published artifacts'
 
 write_manifest rescue
-export MOCK_FORCE_MODULE=CONFIG_PACKAGE_vlmcsd
+export MOCK_FORCE_MODULE=CONFIG_PACKAGE_nvme-cli
 expect_failure forbidden-module "$BASH" "$BUILD" rescue
 unset MOCK_FORCE_MODULE
 test ! -e "$OUT/rescue" || fail 'forbidden =m Kconfig selection published artifacts'
