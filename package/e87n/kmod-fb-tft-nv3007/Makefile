@@ -7,6 +7,8 @@ PKG_RELEASE:=1
 include $(INCLUDE_DIR)/package.mk
 
 define KernelPackage/fb-tft-nv3007
+  SECTION:=kernel
+  CATEGORY:=Kernel modules
   SUBMENU:=Video Support
   TITLE:=FB driver for the NV3007 LCD controller
   DEPENDS:=@GPIO_SUPPORT +kmod-fb-tft
@@ -17,6 +19,11 @@ endef
 
 define KernelPackage/fb-tft-nv3007/description
   Framebuffer driver for the New Vision NV3007 LCD controller.
+endef
+
+include $(INCLUDE_DIR)/kernel-defaults.mk
+
+define Build/Compile
 endef
 
 $(eval $(call KernelPackage,fb-tft-nv3007))
