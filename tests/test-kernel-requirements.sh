@@ -8,7 +8,7 @@ cd "$repo_root"
 cfg=configs/common.config
 dts=device/edgepi-e87n/source-overlay/target/linux/mediatek/dts/mt7987a-edgepi-e87n.dts
 driver_patch=device/edgepi-e87n/source-overlay/target/linux/mediatek/patches-6.12/950-fbdev-fbtft-add-nv3007.patch
-package_patch=patches/immortalwrt/0002-kernel-package-nv3007-fbtft-driver.patch
+package_patch=package/e87n/kmod-fb-tft-nv3007/Makefile
 
 test -f "$cfg"
 test -f "$dts"
