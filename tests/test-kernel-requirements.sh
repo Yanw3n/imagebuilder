@@ -9,11 +9,13 @@ cfg=configs/common.config
 dts=device/edgepi-e87n/source-overlay/target/linux/mediatek/dts/mt7987a-edgepi-e87n.dts
 driver_patch=device/edgepi-e87n/source-overlay/target/linux/mediatek/patches-6.12/950-fbdev-fbtft-add-nv3007.patch
 package_patch=patches/immortalwrt/0002-kernel-package-nv3007-fbtft-driver.patch
+display_patch=patches/immortalwrt/0003-mediatek-filogic-enable-display.patch
 
 test -f "$cfg"
 test -f "$dts"
 test -f "$driver_patch"
 test -f "$package_patch"
+test -f "$display_patch"
 
 required_symbols=(
 	CONFIG_TARGET_mediatek=y
@@ -99,10 +101,12 @@ grep -Fq '0xA0 | (par->bgr << 3)' "$driver_patch"
 grep -Fq 'CONFIG_FB_TFT_NV3007' "$package_patch"
 grep -Fq '$(LINUX_DIR)/drivers/staging/fbtft/fb_nv3007.ko' "$package_patch"
 grep -Fq 'AUTOLOAD:=$(call AutoLoad,08,fbtft fb_nv3007)' "$package_patch"
+grep -Fq 'FEATURES+=display' "$display_patch"
 
 if [[ -n "${IMMORTALWRT_SOURCE:-}" ]]; then
 	test -f "$IMMORTALWRT_SOURCE/target/linux/generic/config-6.12"
 	grep -Fqx 'CONFIG_BPF_SYSCALL=y' "$IMMORTALWRT_SOURCE/target/linux/generic/config-6.12"
 	grep -Fqx 'CONFIG_BPF_JIT=y' "$IMMORTALWRT_SOURCE/target/linux/generic/config-6.12"
 	git -C "$IMMORTALWRT_SOURCE" apply --check "$repo_root/$package_patch"
+	git -C "$IMMORTALWRT_SOURCE" apply --check "$repo_root/$display_patch"
 fi
