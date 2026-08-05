@@ -78,6 +78,9 @@ grep -Eq 'obj-\$\(CONFIG_FB_TFT_NV3007\)[[:space:]]+\+= fb_nv3007\.o' "$driver_p
 grep -Fq 'drivers/staging/fbtft/fb_nv3007.c' "$driver_patch"
 grep -Fq '#define DRVNAME "fb_nv3007"' "$driver_patch"
 grep -Fq 'FBTFT_REGISTER_DRIVER(DRVNAME, "newvisionu,nv3007", &display);' "$driver_patch"
+git apply --numstat "$driver_patch" |
+	grep -Fqx $'217\t0\tdrivers/staging/fbtft/fb_nv3007.c'
+grep -Fq 'MODULE_LICENSE("GPL");' "$driver_patch"
 grep -Fq '.width = 428' "$driver_patch"
 grep -Fq '.height = 142' "$driver_patch"
 grep -Fq 'mdelay(5);' "$driver_patch"
