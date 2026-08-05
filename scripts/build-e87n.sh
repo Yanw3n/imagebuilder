@@ -12,6 +12,8 @@ SOURCE_DIR=${IMMORTALWRT_SOURCE:-"$WORK_DIR/immortalwrt"}
 BASH_BIN=${BASH:-bash}
 source "$REPO_ROOT/scripts/lib/common.sh"
 require_file "$REPO_ROOT/versions.env"
+# Resolved from the checked repository root at runtime.
+# shellcheck disable=SC1091
 source "$REPO_ROOT/versions.env"
 
 require_file "$SOURCE_DIR/Makefile"
