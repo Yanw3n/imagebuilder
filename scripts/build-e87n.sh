@@ -51,8 +51,8 @@ awk '
 while read -r state symbol; do
   if test "$state" = y; then
     grep -qx "$symbol=y" "$SOURCE_DIR/.config" || die "resolved config drops $symbol"
-  elif ! grep -qx "# $symbol is not set" "$SOURCE_DIR/.config"; then
-    die "resolved config does not preserve literal prohibition for $symbol"
+  elif grep -Eq "^$symbol=[ym]$" "$SOURCE_DIR/.config"; then
+    die "resolved config enables prohibited $symbol"
   fi
 done
 
