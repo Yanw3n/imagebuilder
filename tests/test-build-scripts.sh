@@ -403,7 +403,7 @@ EOF
 chmod 0755 "$SOURCE/scripts/kconfig.pl" "$MOCKBIN"/*
 
 IMAGE="$SOURCE/bin/targets/mediatek/filogic/immortalwrt-mediatek-filogic-edgepi_e87n-squashfs-sysupgrade.bin"
-MANIFEST="$SOURCE/bin/targets/mediatek/filogic/immortalwrt-mediatek-filogic-edgepi_e87n.manifest"
+MANIFEST="$SOURCE/bin/targets/mediatek/filogic/immortalwrt-mediatek-filogic.manifest"
 DTB="$SOURCE/build_dir/target-aarch64/linux-mediatek_filogic/linux-6.12/mt7987a-edgepi-e87n.dtb"
 VMLINUX="$SOURCE/build_dir/target-aarch64/linux-mediatek_filogic/linux-6.12/vmlinux"
 printf 'image-bytes\n' >"$IMAGE"
@@ -433,6 +433,12 @@ unset MOCK_DROP_SYMBOL
 test ! -e "$OUT/full" || fail 'disappearing Kconfig selection published artifacts'
 
 write_manifest rescue
+export MOCK_DROP_SYMBOL=CONFIG_KERNEL_BPF_STREAM_PARSER
+"$BASH" "$BUILD" rescue
+unset MOCK_DROP_SYMBOL
+test -f "$OUT/rescue/edgepi-e87n-immortalwrt-25.12-rescue-sysupgrade.bin" || fail 'absent disabled Kconfig symbol blocked rescue build'
+rm -rf "$OUT/rescue"
+
 export MOCK_FORCE_MODULE=CONFIG_PACKAGE_kmod-wireguard
 expect_failure forbidden-module "$BASH" "$BUILD" rescue
 unset MOCK_FORCE_MODULE
