@@ -95,12 +95,12 @@ cat >"$MOCKBIN/tar" <<'EOF'
 #!/usr/bin/env sh
 set -eu
 case "$1" in
-  -tf) printf '%s\n' 'sysupgrade-edgepi,e87n/CONTROL' 'sysupgrade-edgepi,e87n/kernel' 'sysupgrade-edgepi,e87n/root' ;;
+  -tf) printf '%s\n' 'sysupgrade-edgepi_e87n/CONTROL' 'sysupgrade-edgepi_e87n/kernel' 'sysupgrade-edgepi_e87n/root' ;;
   -xOf)
     case "$3" in
       */CONTROL)
-        board=${MOCK_BOARD:-edgepi,e87n}
-        case "$2" in *override-good*) board=edgepi,e87n ;; esac
+        board=${MOCK_BOARD:-edgepi_e87n}
+        case "$2" in *override-good*) board=edgepi_e87n ;; esac
         printf 'BOARD=%s\n' "$board" ;;
       */kernel)
         if test "${MOCK_OVERSIZE_KERNEL:-0}" = 1; then
