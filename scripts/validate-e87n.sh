@@ -27,11 +27,12 @@ else
 fi
 test "${#images[@]}" -eq 1 || die "expected exactly one E87N sysupgrade image, found ${#images[@]}"
 IMAGE=${images[0]}
+image_dir=$(dirname -- "$IMAGE")
 
 if test -n "${E87N_MANIFEST:-}"; then
   manifests=("$E87N_MANIFEST")
 else
-  mapfile -d '' -t manifests < <(find "$SOURCE_DIR/bin/targets" -type f -iname '*edgepi_e87n*.manifest' -print0 2>/dev/null)
+  mapfile -d '' -t manifests < <(find "$image_dir" -maxdepth 1 -type f -name '*.manifest' -print0 2>/dev/null)
 fi
 test "${#manifests[@]}" -eq 1 || die "expected exactly one E87N package manifest, found ${#manifests[@]}"
 MANIFEST=${manifests[0]}
