@@ -67,7 +67,11 @@ printf 'make %s\n' "$*" >>"$MOCK_LOG"
 source_dir=
 if test "${1:-}" = -C; then source_dir=$2; shift 2; fi
 if test "${1:-}" = defconfig; then
-  awk -v drop="${MOCK_DROP_SYMBOL:-}" '
+  drop=${MOCK_DROP_SYMBOL:-}
+  if test -n "${MOCK_DROP_SYMBOL_RESCUE:-}" && grep -qx 'CONFIG_PACKAGE_nano=y' "$source_dir/.config"; then
+    drop=$MOCK_DROP_SYMBOL_RESCUE
+  fi
+  awk -v drop="$drop" '
     /^[#] CONFIG_[A-Za-z0-9_-]+ is not set$/ { s=$0; sub(/^# /,"",s); sub(/ is not set$/,"",s); state[s]="n"; if(!seen[s]++) order[++n]=s; next }
     /^CONFIG_[A-Za-z0-9_-]+=/ { s=$0; sub(/=.*/,"",s); state[s]=$0; if(!seen[s]++) order[++n]=s; next }
     { other[++m]=$0 }
@@ -433,9 +437,9 @@ unset MOCK_DROP_SYMBOL
 test ! -e "$OUT/full" || fail 'disappearing Kconfig selection published artifacts'
 
 write_manifest rescue
-export MOCK_DROP_SYMBOL=CONFIG_KERNEL_BPF_STREAM_PARSER
+export MOCK_DROP_SYMBOL_RESCUE=CONFIG_KERNEL_BPF_STREAM_PARSER
 "$BASH" "$BUILD" rescue
-unset MOCK_DROP_SYMBOL
+unset MOCK_DROP_SYMBOL_RESCUE
 test -f "$OUT/rescue/edgepi-e87n-immortalwrt-25.12-rescue-sysupgrade.bin" || fail 'absent disabled Kconfig symbol blocked rescue build'
 rm -rf "$OUT/rescue"
 
