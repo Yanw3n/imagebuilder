@@ -21,8 +21,8 @@ flock -x "$lock_fd"
 mapfile -d '' -t candidates < <(find "$SOURCE_DIR/bin/targets" -type f -name '*sysupgrade*.bin' -print0 2>/dev/null)
 images=()
 for candidate in "${candidates[@]}"; do
-  if tar -tf "$candidate" 2>/dev/null | grep -qx 'sysupgrade-edgepi,e87n/CONTROL' &&
-     tar -tf "$candidate" 2>/dev/null | grep -qx 'sysupgrade-edgepi,e87n/kernel'; then
+  if tar -tf "$candidate" 2>/dev/null | grep -qx 'sysupgrade-edgepi_e87n/CONTROL' &&
+     tar -tf "$candidate" 2>/dev/null | grep -qx 'sysupgrade-edgepi_e87n/kernel'; then
     images+=("$candidate")
   fi
 done
