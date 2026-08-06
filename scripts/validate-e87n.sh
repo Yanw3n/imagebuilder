@@ -65,8 +65,22 @@ dumpimage -l "$tmp/kernel.fit" >"$tmp/fit.txt"
 grep -Eqi 'FIT|Image Type|description' "$tmp/fit.txt" || die 'kernel is not a readable FIT image'
 grep -Eqi 'ARM64|AArch64' "$tmp/fit.txt" || die 'FIT kernel is not ARM64'
 
-dtc -I dtb -O dts "$DTB" >"$tmp/compiled.dts"
-grep -Eq 'compatible[[:space:]]*=[^;]*"edgepi,e87n"' "$tmp/compiled.dts" || die 'compiled DTB lacks edgepi,e87n compatibility'
+# Prefer the compiled board DTB bytes first; host dtc decompile formatting can vary.
+grep -aFq 'edgepi,e87n' "$DTB" || {
+  printf 'error: compiled DTB binary lacks edgepi,e87n (path=%s)\n' "$DTB" >&2
+  exit 1
+}
+if ! dtc -I dtb -O dts -o "$tmp/compiled.dts" "$DTB" 2>"$tmp/dtc.err"; then
+  printf 'error: dtc failed to decompile DTB (path=%s)\n' "$DTB" >&2
+  sed -n '1,80p' "$tmp/dtc.err" >&2 || true
+  exit 1
+fi
+if ! grep -Fq 'edgepi,e87n' "$tmp/compiled.dts"; then
+  printf 'error: compiled DTB lacks edgepi,e87n compatibility (path=%s)\n' "$DTB" >&2
+  sed -n '1,40p' "$tmp/dtc.err" >&2 || true
+  grep -n 'compatible' "$tmp/compiled.dts" | sed -n '1,40p' >&2 || true
+  exit 1
+fi
 grep -q 'mediatek,mt7987-eth' "$tmp/compiled.dts" || die 'compiled DTB lacks the Ethernet controller'
 if grep -Eqi '(^|[[:space:]])(wifi|wireless|wlan|80211)[^[:space:]]*@[0-9a-f]+' "$tmp/compiled.dts"; then
   die 'compiled DTB contains a Wi-Fi child node'

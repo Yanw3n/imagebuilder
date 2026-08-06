@@ -127,8 +127,24 @@ esac
 EOF
 cat >"$MOCKBIN/dtc" <<'EOF'
 #!/usr/bin/env sh
+# Support both "dtc ... >out" and "dtc -o out ..." invocation styles.
+out=
+prev=
+for arg in "$@"; do
+  if test "$prev" = -o; then
+    out=$arg
+  fi
+  prev=$arg
+done
+emit() {
+  if test -n "$out"; then
+    cat >"$out"
+  else
+    cat
+  fi
+}
 if test "${MOCK_NESTED_LEAK:-0}" = 1; then
-cat <<'DTS'
+emit <<'DTS'
 / {
   compatible = "edgepi,e87n";
   ethernet@15100000 {
@@ -155,7 +171,7 @@ DTS
 exit
 fi
 if test "${MOCK_FALSE_CONTROLLER:-0}" = 1; then
-cat <<'DTS'
+emit <<'DTS'
 / {
   compatible = "edgepi,e87n";
   container@0 {
@@ -180,7 +196,7 @@ DTS
 exit
 fi
 if test "${MOCK_DECOY_CONTROLLER:-0}" = 1; then
-cat <<'DTS'
+emit <<'DTS'
 / {
   compatible = "edgepi,e87n";
   soc {
@@ -246,7 +262,7 @@ DTS
 exit
 fi
 if test "${MOCK_OFFPATH_PHYS:-0}" = 1; then
-cat <<'DTS'
+emit <<'DTS'
 / {
   compatible = "edgepi,e87n";
   soc {
@@ -308,7 +324,7 @@ else
           status = \"okay\";
         };"
 fi
-cat <<DTS
+emit <<DTS
 / {
   compatible = "edgepi,e87n", "mediatek,mt7987a";
   soc {
@@ -411,7 +427,9 @@ MANIFEST="$SOURCE/bin/targets/mediatek/filogic/immortalwrt-mediatek-filogic.mani
 DTB="$SOURCE/build_dir/target-aarch64/linux-mediatek_filogic/linux-6.12/mt7987a-edgepi-e87n.dtb"
 VMLINUX="$SOURCE/build_dir/target-aarch64/linux-mediatek_filogic/linux-6.12/vmlinux"
 printf 'image-bytes\n' >"$IMAGE"
-touch "$DTB" "$VMLINUX"
+# Binary DTB probe looks for the board compatible string before decompile.
+printf 'edgepi,e87n\0' >"$DTB"
+touch "$VMLINUX"
 
 write_manifest() {
   local profile=$1
