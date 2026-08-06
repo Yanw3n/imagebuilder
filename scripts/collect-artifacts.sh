@@ -28,7 +28,8 @@ for candidate in "${candidates[@]}"; do
 done
 test "${#images[@]}" -eq 1 || die "expected exactly one E87N sysupgrade image, found ${#images[@]}"
 IMAGE=${images[0]}
-mapfile -d '' -t manifests < <(find "$SOURCE_DIR/bin/targets" -type f -iname '*edgepi_e87n*.manifest' -print0 2>/dev/null)
+image_dir=$(dirname -- "$IMAGE")
+mapfile -d '' -t manifests < <(find "$image_dir" -maxdepth 1 -type f -name '*.manifest' -print0 2>/dev/null)
 test "${#manifests[@]}" -eq 1 || die "expected exactly one E87N package manifest, found ${#manifests[@]}"
 MANIFEST=${manifests[0]}
 require_file "$SOURCE_DIR/.config"
