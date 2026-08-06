@@ -68,7 +68,7 @@ source_dir=
 if test "${1:-}" = -C; then source_dir=$2; shift 2; fi
 if test "${1:-}" = defconfig; then
   drop=${MOCK_DROP_SYMBOL:-}
-  if test -n "${MOCK_DROP_SYMBOL_RESCUE:-}" && grep -qx 'CONFIG_PACKAGE_nano=y' "$source_dir/.config"; then
+  if test -n "${MOCK_DROP_SYMBOL_RESCUE:-}" && grep -qx 'CONFIG_PACKAGE_fbtest=y' "$source_dir/.config"; then
     drop=$MOCK_DROP_SYMBOL_RESCUE
   fi
   awk -v drop="$drop" '
