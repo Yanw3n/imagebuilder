@@ -13,8 +13,8 @@ source "$REPO_ROOT/scripts/lib/common.sh"
 find_e87n_images() {
   local candidate
   while IFS= read -r -d '' candidate; do
-    if tar -tf "$candidate" 2>/dev/null | grep -qx 'sysupgrade-edgepi,e87n/CONTROL' &&
-       tar -tf "$candidate" 2>/dev/null | grep -qx 'sysupgrade-edgepi,e87n/kernel'; then
+    if tar -tf "$candidate" 2>/dev/null | grep -qx 'sysupgrade-edgepi_e87n/CONTROL' &&
+       tar -tf "$candidate" 2>/dev/null | grep -qx 'sysupgrade-edgepi_e87n/kernel'; then
       printf '%s\0' "$candidate"
     fi
   done < <(find "$SOURCE_DIR/bin/targets" -type f -name '*sysupgrade*.bin' -print0 2>/dev/null)
@@ -55,9 +55,9 @@ require_file "$SOURCE_DIR/.config"
 
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/e87n-validate.XXXXXX")
 trap 'rm -rf "$tmp"' EXIT
-tar -xOf "$IMAGE" 'sysupgrade-edgepi,e87n/CONTROL' >"$tmp/CONTROL"
-grep -qx 'BOARD=edgepi,e87n' "$tmp/CONTROL" || die 'sysupgrade BOARD is not edgepi,e87n'
-tar -xOf "$IMAGE" 'sysupgrade-edgepi,e87n/kernel' >"$tmp/kernel.fit"
+tar -xOf "$IMAGE" 'sysupgrade-edgepi_e87n/CONTROL' >"$tmp/CONTROL"
+grep -qx 'BOARD=edgepi_e87n' "$tmp/CONTROL" || die 'sysupgrade BOARD is not edgepi_e87n'
+tar -xOf "$IMAGE" 'sysupgrade-edgepi_e87n/kernel' >"$tmp/kernel.fit"
 kernel_size=$(wc -c <"$tmp/kernel.fit")
 test "$kernel_size" -lt $((32 * 1024 * 1024)) || die 'FIT kernel exceeds the 32 MiB partition'
 dumpimage -l "$tmp/kernel.fit" >"$tmp/fit.txt"
