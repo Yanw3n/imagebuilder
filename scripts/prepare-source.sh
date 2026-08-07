@@ -27,15 +27,13 @@ src-git packages https://github.com/immortalwrt/packages.git^$PACKAGES_COMMIT
 src-git luci https://github.com/immortalwrt/luci.git^$LUCI_COMMIT
 src-git passwall_packages $PASSWALL_PACKAGES_REPO^$PASSWALL_PACKAGES_COMMIT
 src-git passwall $PASSWALL_REPO^$PASSWALL_COMMIT
-src-git istore $ISTORE_REPO^$ISTORE_COMMIT
 EOF
 
-test "$(wc -l <"$feeds_conf")" -eq 5 || die "unexpected feed count"
+test "$(wc -l <"$feeds_conf")" -eq 4 || die "unexpected feed count"
 grep -qx "src-git packages https://github.com/immortalwrt/packages.git^$PACKAGES_COMMIT" "$feeds_conf" || die "packages feed is not pinned"
 grep -qx "src-git luci https://github.com/immortalwrt/luci.git^$LUCI_COMMIT" "$feeds_conf" || die "luci feed is not pinned"
 grep -qx "src-git passwall_packages $PASSWALL_PACKAGES_REPO^$PASSWALL_PACKAGES_COMMIT" "$feeds_conf" || die "passwall_packages feed is not pinned"
 grep -qx "src-git passwall $PASSWALL_REPO^$PASSWALL_COMMIT" "$feeds_conf" || die "passwall feed is not pinned"
-grep -qx "src-git istore $ISTORE_REPO^$ISTORE_COMMIT" "$feeds_conf" || die "istore feed is not pinned"
 
 (
   cd "$SOURCE_DIR"
@@ -70,6 +68,5 @@ test "$(git -C "$SOURCE_DIR/package/feeds/daede" rev-parse HEAD)" = "$DAEDE_COMM
 test "$(git -C "$SOURCE_DIR/package/feeds/luci-app-openclash" rev-parse HEAD)" = "$OPENCLASH_COMMIT" || die "OpenClash HEAD is not pinned"
 test "$(git -C "$SOURCE_DIR/feeds/passwall" rev-parse HEAD)" = "$PASSWALL_COMMIT" || die "passwall feed HEAD is not pinned"
 test "$(git -C "$SOURCE_DIR/feeds/passwall_packages" rev-parse HEAD)" = "$PASSWALL_PACKAGES_COMMIT" || die "passwall_packages feed HEAD is not pinned"
-test "$(git -C "$SOURCE_DIR/feeds/istore" rev-parse HEAD)" = "$ISTORE_COMMIT" || die "istore feed HEAD is not pinned"
 
 printf 'prepared pinned ImmortalWrt sources at %s\n' "$SOURCE_DIR"

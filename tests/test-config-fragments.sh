@@ -174,9 +174,9 @@ validate_manifest() {
 		done
 	if test "$profile" = rescue; then
 		for symbol in \
-			CONFIG_PACKAGE_dae CONFIG_PACKAGE_luci-app-daede \
+			CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daede \
 			CONFIG_PACKAGE_luci-app-openclash CONFIG_PACKAGE_luci-app-passwall \
-			CONFIG_PACKAGE_luci-app-store CONFIG_PACKAGE_ddns-scripts-cloudflare \
+			CONFIG_PACKAGE_ddns-scripts-cloudflare \
 			CONFIG_PACKAGE_adguardhome CONFIG_PACKAGE_tailscale CONFIG_PACKAGE_python3 \
 			CONFIG_PACKAGE_bridger \
 			CONFIG_PACKAGE_kmod-wireguard CONFIG_PACKAGE_wireguard-tools \
@@ -267,9 +267,9 @@ validate_resolved_configs() {
 		assert_profile_disables_survive "$profile" "$resolve_tmp/$profile.resolved"
 		if test "$profile" = rescue; then
 			for symbol in \
-				CONFIG_PACKAGE_dae CONFIG_PACKAGE_luci-app-daede \
+				CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daede \
 				CONFIG_PACKAGE_luci-app-openclash CONFIG_PACKAGE_luci-app-passwall \
-				CONFIG_PACKAGE_luci-app-store CONFIG_PACKAGE_ddns-scripts-cloudflare \
+				CONFIG_PACKAGE_ddns-scripts-cloudflare \
 				CONFIG_PACKAGE_adguardhome CONFIG_PACKAGE_tailscale CONFIG_PACKAGE_python3 \
 				CONFIG_PACKAGE_bridger \
 				CONFIG_PACKAGE_kmod-wireguard CONFIG_PACKAGE_wireguard-tools \
@@ -321,11 +321,10 @@ assert_manifest_detector_rejects ucode-mod-nl80211 'ucode-mod-nl80211 2025.06-r1
 
 # Removing any requested full-profile package must fail this list.
 for symbol in \
-	CONFIG_PACKAGE_dae \
+	CONFIG_PACKAGE_daed \
 	CONFIG_PACKAGE_luci-app-daede \
 	CONFIG_PACKAGE_luci-app-openclash \
 	CONFIG_PACKAGE_luci-app-passwall \
-	CONFIG_PACKAGE_luci-app-store \
 	CONFIG_PACKAGE_adguardhome \
 	CONFIG_PACKAGE_kmod-wireguard \
 	CONFIG_PACKAGE_wireguard-tools \
@@ -422,7 +421,6 @@ for symbol in \
 	CONFIG_PACKAGE_luci-app-daede \
 	CONFIG_PACKAGE_luci-app-openclash \
 	CONFIG_PACKAGE_luci-app-passwall \
-	CONFIG_PACKAGE_luci-app-store \
 	CONFIG_PACKAGE_ddns-scripts-cloudflare \
 	CONFIG_PACKAGE_adguardhome \
 	CONFIG_PACKAGE_tailscale \
@@ -445,8 +443,9 @@ for symbol in \
 	assert_not_effective_y rescue "$symbol"
 done
 
-# Full profile keeps LuCI-integrated dae only (no daed :2023 dashboard package).
-assert_not_effective_y full CONFIG_PACKAGE_daed
+# Full profile keeps daed only (no standalone dae package; no iStore).
+assert_not_effective_y full CONFIG_PACKAGE_dae
+assert_not_effective_y full CONFIG_PACKAGE_luci-app-store
 
 for file in "$common" "$root/configs/full.config" "$root/configs/rescue.config"; do
 	if grep -E '^#? ?CONFIG_PACKAGE_python3-(ssl|json)(=| )' "$file"; then

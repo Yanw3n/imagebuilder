@@ -596,7 +596,7 @@ grep -qx 'PROFILE=full' "$OUT/full/BUILD-MANIFEST.txt"
 write_manifest rescue
 cp "$MANIFEST" "$TMP/good-rescue.manifest"
 for forbidden in \
-  dae luci-app-openclash luci-app-passwall luci-app-store ddns-scripts-cloudflare \
+  daed luci-app-openclash luci-app-passwall ddns-scripts-cloudflare \
   adguardhome tailscale python3 vlmcsd bridger wireguard-tools ttyd ddns-scripts \
   watchcat luci-app-argon-config luci-i18n-ttyd-zh-cn iw kmod-xdp-sockets-diag; do
   cp "$TMP/good-rescue.manifest" "$MANIFEST"
