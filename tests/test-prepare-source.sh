@@ -47,7 +47,9 @@ grep -Fq '"$SOURCE_DIR/feeds/packages" rev-parse HEAD)' scripts/prepare-source.s
 grep -Fq '"$SOURCE_DIR/feeds/luci" rev-parse HEAD)' scripts/prepare-source.sh
 grep -Fq '"$SOURCE_DIR/package/feeds/daede" rev-parse HEAD)' scripts/prepare-source.sh
 grep -Fq 'feeds/passwall" rev-parse HEAD)' scripts/prepare-source.sh
-! grep -Fq 'feeds/istore' scripts/prepare-source.sh
+if grep -Fq 'feeds/istore' scripts/prepare-source.sh; then
+  exit 1
+fi
 
 empty_repo=$(mktemp -d)
 trap 'rm -rf "$empty_repo"' EXIT
