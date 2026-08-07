@@ -25,11 +25,17 @@ require_file "$feeds_conf"
 cat >"$feeds_conf" <<EOF
 src-git packages https://github.com/immortalwrt/packages.git^$PACKAGES_COMMIT
 src-git luci https://github.com/immortalwrt/luci.git^$LUCI_COMMIT
+src-git passwall_packages $PASSWALL_PACKAGES_REPO^$PASSWALL_PACKAGES_COMMIT
+src-git passwall $PASSWALL_REPO^$PASSWALL_COMMIT
+src-git istore $ISTORE_REPO^$ISTORE_COMMIT
 EOF
 
-test "$(wc -l <"$feeds_conf")" -eq 2 || die "unexpected feed count"
+test "$(wc -l <"$feeds_conf")" -eq 5 || die "unexpected feed count"
 grep -qx "src-git packages https://github.com/immortalwrt/packages.git^$PACKAGES_COMMIT" "$feeds_conf" || die "packages feed is not pinned"
 grep -qx "src-git luci https://github.com/immortalwrt/luci.git^$LUCI_COMMIT" "$feeds_conf" || die "luci feed is not pinned"
+grep -qx "src-git passwall_packages $PASSWALL_PACKAGES_REPO^$PASSWALL_PACKAGES_COMMIT" "$feeds_conf" || die "passwall_packages feed is not pinned"
+grep -qx "src-git passwall $PASSWALL_REPO^$PASSWALL_COMMIT" "$feeds_conf" || die "passwall feed is not pinned"
+grep -qx "src-git istore $ISTORE_REPO^$ISTORE_COMMIT" "$feeds_conf" || die "istore feed is not pinned"
 
 (
   cd "$SOURCE_DIR"
@@ -41,7 +47,17 @@ mkdir -p "$SOURCE_DIR/package/feeds"
 git clone --filter=blob:none --no-tags "$DAEDE_REPO" "$SOURCE_DIR/package/feeds/daede"
 git -C "$SOURCE_DIR/package/feeds/daede" checkout --detach "$DAEDE_COMMIT"
 
+# OpenClash ships as a single-package git tree (Makefile at repo root).
+git clone --filter=blob:none --no-tags "$OPENCLASH_REPO" "$SOURCE_DIR/package/feeds/luci-app-openclash"
+git -C "$SOURCE_DIR/package/feeds/luci-app-openclash" checkout --detach "$OPENCLASH_COMMIT"
+
 apply_repo_overlays "$SOURCE_DIR"
+
+# Rootfs custom files (uci-defaults, etc.)
+if test -d "$REPO_ROOT/files"; then
+  mkdir -p "$SOURCE_DIR/files"
+  rsync -a "$REPO_ROOT/files/" "$SOURCE_DIR/files/"
+fi
 
 # feeds install builds package metadata before local packages and kernel-package
 # patches are added. Force the next defconfig to rescan the completed source tree.
@@ -51,5 +67,9 @@ test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$IMMORTALWRT_COMMIT" || die "Im
 test "$(git -C "$SOURCE_DIR/feeds/packages" rev-parse HEAD)" = "$PACKAGES_COMMIT" || die "packages HEAD is not pinned"
 test "$(git -C "$SOURCE_DIR/feeds/luci" rev-parse HEAD)" = "$LUCI_COMMIT" || die "LuCI HEAD is not pinned"
 test "$(git -C "$SOURCE_DIR/package/feeds/daede" rev-parse HEAD)" = "$DAEDE_COMMIT" || die "daede HEAD is not pinned"
+test "$(git -C "$SOURCE_DIR/package/feeds/luci-app-openclash" rev-parse HEAD)" = "$OPENCLASH_COMMIT" || die "OpenClash HEAD is not pinned"
+test "$(git -C "$SOURCE_DIR/feeds/passwall" rev-parse HEAD)" = "$PASSWALL_COMMIT" || die "passwall feed HEAD is not pinned"
+test "$(git -C "$SOURCE_DIR/feeds/passwall_packages" rev-parse HEAD)" = "$PASSWALL_PACKAGES_COMMIT" || die "passwall_packages feed HEAD is not pinned"
+test "$(git -C "$SOURCE_DIR/feeds/istore" rev-parse HEAD)" = "$ISTORE_COMMIT" || die "istore feed HEAD is not pinned"
 
 printf 'prepared pinned ImmortalWrt sources at %s\n' "$SOURCE_DIR"

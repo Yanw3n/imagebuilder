@@ -1,0 +1,10 @@
+#!/bin/sh
+# Prefer LuCI-integrated dae backend (no separate daed dashboard on :2023).
+# Services stay disabled until the user enables them in luci-app-daede.
+[ -f /etc/config/daede ] || exit 0
+uci -q batch <<-EOF
+	set daede.config=daede
+	set daede.config.active_backend='dae'
+	commit daede
+EOF
+exit 0
