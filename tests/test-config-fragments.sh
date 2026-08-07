@@ -378,7 +378,7 @@ for symbol in \
 	CONFIG_KERNEL_DEBUG_INFO_BTF \
 	CONFIG_PACKAGE_dropbear \
 	CONFIG_PACKAGE_firewall4 \
-	CONFIG_PACKAGE_dnsmasq \
+	CONFIG_PACKAGE_dnsmasq-full \
 	CONFIG_PACKAGE_kmod-usb3 \
 	CONFIG_PACKAGE_kmod-usb-storage \
 	CONFIG_PACKAGE_kmod-usb-storage-uas \
