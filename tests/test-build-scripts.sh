@@ -449,7 +449,7 @@ grep -q 'full|rescue' "$TMP/invalid-build-profile.stderr"
 
 write_manifest full
 : >"$LOG"
-export MOCK_DROP_SYMBOL=CONFIG_PACKAGE_dae
+export MOCK_DROP_SYMBOL=CONFIG_PACKAGE_daed
 expect_failure disappearing-kconfig "$BASH" "$BUILD" full
 unset MOCK_DROP_SYMBOL
 test ! -e "$OUT/full" || fail 'disappearing Kconfig selection published artifacts'
@@ -549,7 +549,7 @@ expect_failure wifi-child "$BASH" "$VALIDATE" full
 unset MOCK_WIFI_NODE
 
 cp "$MANIFEST" "$TMP/good-full.manifest"
-sed -i 's/^dae /dae-malformed /' "$MANIFEST"
+sed -i 's/^daed /daed-malformed /' "$MANIFEST"
 expect_failure malformed-manifest "$BASH" "$VALIDATE" full
 cp "$TMP/good-full.manifest" "$MANIFEST"
 
