@@ -174,7 +174,7 @@ validate_manifest() {
 		done
 	if test "$profile" = rescue; then
 		for symbol in \
-			CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daede \
+			CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daed \
 			CONFIG_PACKAGE_luci-app-openclash CONFIG_PACKAGE_luci-app-passwall \
 			CONFIG_PACKAGE_ddns-scripts-cloudflare \
 			CONFIG_PACKAGE_adguardhome CONFIG_PACKAGE_tailscale CONFIG_PACKAGE_python3 \
@@ -216,7 +216,7 @@ validate_resolved_configs() {
 	fi
 	if ! test -f "$source/scripts/kconfig.pl" || ! test -f "$source/Makefile" || \
 		! test -d "$source/feeds/packages" || ! test -d "$source/feeds/luci" || \
-		! test -d "$source/package/feeds/daede"; then
+		! test -d "$source/package/feeds/daed"; then
 		printf '%s\n' "SKIP: resolved config validation: prepared pinned source incomplete at $source"
 		return
 	fi
@@ -267,7 +267,7 @@ validate_resolved_configs() {
 		assert_profile_disables_survive "$profile" "$resolve_tmp/$profile.resolved"
 		if test "$profile" = rescue; then
 			for symbol in \
-				CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daede \
+				CONFIG_PACKAGE_daed CONFIG_PACKAGE_luci-app-daed \
 				CONFIG_PACKAGE_luci-app-openclash CONFIG_PACKAGE_luci-app-passwall \
 				CONFIG_PACKAGE_ddns-scripts-cloudflare \
 				CONFIG_PACKAGE_adguardhome CONFIG_PACKAGE_tailscale CONFIG_PACKAGE_python3 \
@@ -322,7 +322,7 @@ assert_manifest_detector_rejects ucode-mod-nl80211 'ucode-mod-nl80211 2025.06-r1
 # Removing any requested full-profile package must fail this list.
 for symbol in \
 	CONFIG_PACKAGE_daed \
-	CONFIG_PACKAGE_luci-app-daede \
+	CONFIG_PACKAGE_luci-app-daed \
 	CONFIG_PACKAGE_luci-app-openclash \
 	CONFIG_PACKAGE_luci-app-passwall \
 	CONFIG_PACKAGE_adguardhome \
@@ -365,7 +365,7 @@ for symbol in \
 	assert_effective_y full "$symbol"
 done
 
-assert_not_effective_y full CONFIG_PACKAGE_luci-i18n-daede-zh-cn
+assert_not_effective_y full CONFIG_PACKAGE_luci-app-daede
 assert_effective_n full CONFIG_PACKAGE_wpad-openssl
 assert_effective_n rescue CONFIG_PACKAGE_wpad-openssl
 
@@ -418,6 +418,7 @@ done
 for symbol in \
 	CONFIG_PACKAGE_dae \
 	CONFIG_PACKAGE_daed \
+	CONFIG_PACKAGE_luci-app-daed \
 	CONFIG_PACKAGE_luci-app-daede \
 	CONFIG_PACKAGE_luci-app-openclash \
 	CONFIG_PACKAGE_luci-app-passwall \

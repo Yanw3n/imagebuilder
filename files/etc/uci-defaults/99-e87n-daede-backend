@@ -1,9 +1,0 @@
-#!/bin/sh
-# Prefer daed backend managed via luci-app-daede.
-[ -f /etc/config/daede ] || exit 0
-uci -q batch <<-EOF
-	set daede.config=daede
-	set daede.config.active_backend='daed'
-	commit daede
-EOF
-exit 0

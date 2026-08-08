@@ -42,8 +42,9 @@ grep -qx "src-git passwall $PASSWALL_REPO^$PASSWALL_COMMIT" "$feeds_conf" || die
 )
 
 mkdir -p "$SOURCE_DIR/package/feeds"
-git clone --filter=blob:none --no-tags "$DAEDE_REPO" "$SOURCE_DIR/package/feeds/daede"
-git -C "$SOURCE_DIR/package/feeds/daede" checkout --detach "$DAEDE_COMMIT"
+# QiuSimons tree provides package/daed and package/luci-app-daed under one clone.
+git clone --filter=blob:none --no-tags "$DAED_REPO" "$SOURCE_DIR/package/feeds/daed"
+git -C "$SOURCE_DIR/package/feeds/daed" checkout --detach "$DAED_COMMIT"
 
 # OpenClash ships as a single-package git tree (Makefile at repo root).
 git clone --filter=blob:none --no-tags "$OPENCLASH_REPO" "$SOURCE_DIR/package/feeds/luci-app-openclash"
@@ -64,7 +65,9 @@ rm -rf "$SOURCE_DIR/tmp"
 test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$IMMORTALWRT_COMMIT" || die "ImmortalWrt HEAD is not pinned"
 test "$(git -C "$SOURCE_DIR/feeds/packages" rev-parse HEAD)" = "$PACKAGES_COMMIT" || die "packages HEAD is not pinned"
 test "$(git -C "$SOURCE_DIR/feeds/luci" rev-parse HEAD)" = "$LUCI_COMMIT" || die "LuCI HEAD is not pinned"
-test "$(git -C "$SOURCE_DIR/package/feeds/daede" rev-parse HEAD)" = "$DAEDE_COMMIT" || die "daede HEAD is not pinned"
+test "$(git -C "$SOURCE_DIR/package/feeds/daed" rev-parse HEAD)" = "$DAED_COMMIT" || die "daed (QiuSimons) HEAD is not pinned"
+test -f "$SOURCE_DIR/package/feeds/daed/daed/Makefile" || die "daed package Makefile missing"
+test -f "$SOURCE_DIR/package/feeds/daed/luci-app-daed/Makefile" || die "luci-app-daed package Makefile missing"
 test "$(git -C "$SOURCE_DIR/package/feeds/luci-app-openclash" rev-parse HEAD)" = "$OPENCLASH_COMMIT" || die "OpenClash HEAD is not pinned"
 test "$(git -C "$SOURCE_DIR/feeds/passwall" rev-parse HEAD)" = "$PASSWALL_COMMIT" || die "passwall feed HEAD is not pinned"
 test "$(git -C "$SOURCE_DIR/feeds/passwall_packages" rev-parse HEAD)" = "$PASSWALL_PACKAGES_COMMIT" || die "passwall_packages feed HEAD is not pinned"

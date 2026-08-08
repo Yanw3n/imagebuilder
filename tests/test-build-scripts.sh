@@ -31,7 +31,7 @@ SOURCE="$TMP/source"
 OUT="$TMP/out"
 LOG="$TMP/calls.log"
 mkdir -p "$MOCKBIN" "$SOURCE/scripts" "$SOURCE/feeds/packages" "$SOURCE/feeds/luci" \
-  "$SOURCE/package/feeds/daede" "$SOURCE/bin/targets/mediatek/filogic" \
+  "$SOURCE/package/feeds/daed" "$SOURCE/bin/targets/mediatek/filogic" \
   "$SOURCE/build_dir/target-aarch64/linux-mediatek_filogic/linux-6.12"
 touch "$SOURCE/Makefile"
 
@@ -55,7 +55,7 @@ test "${1:-}" = rev-parse && test "${2:-}" = HEAD
 case "$path" in
   */feeds/packages) printf '%s\n' "$PACKAGES_COMMIT" ;;
   */feeds/luci) printf '%s\n' "$LUCI_COMMIT" ;;
-  */package/feeds/daede) printf '%s\n' "$DAEDE_COMMIT" ;;
+  */package/feeds/daed) printf '%s\n' "$DAED_COMMIT" ;;
   *) printf '%s\n' "$IMMORTALWRT_COMMIT" ;;
 esac
 EOF
@@ -596,7 +596,7 @@ grep -qx 'PROFILE=full' "$OUT/full/BUILD-MANIFEST.txt"
 write_manifest rescue
 cp "$MANIFEST" "$TMP/good-rescue.manifest"
 for forbidden in \
-  daed luci-app-openclash luci-app-passwall ddns-scripts-cloudflare \
+  daed luci-app-daed luci-app-openclash luci-app-passwall ddns-scripts-cloudflare \
   adguardhome tailscale python3 vlmcsd bridger wireguard-tools ttyd ddns-scripts \
   watchcat luci-app-argon-config luci-i18n-ttyd-zh-cn iw kmod-xdp-sockets-diag; do
   cp "$TMP/good-rescue.manifest" "$MANIFEST"

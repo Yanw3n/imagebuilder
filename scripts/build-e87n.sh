@@ -18,13 +18,13 @@ source "$REPO_ROOT/versions.env"
 
 require_file "$SOURCE_DIR/Makefile"
 require_file "$SOURCE_DIR/scripts/kconfig.pl"
-for dir in "$SOURCE_DIR/feeds/packages" "$SOURCE_DIR/feeds/luci" "$SOURCE_DIR/package/feeds/daede"; do
+for dir in "$SOURCE_DIR/feeds/packages" "$SOURCE_DIR/feeds/luci" "$SOURCE_DIR/package/feeds/daed"; do
   test -d "$dir" || die "prepared pinned source incomplete: $dir"
 done
 test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$IMMORTALWRT_COMMIT" || die 'ImmortalWrt source is not pinned'
 test "$(git -C "$SOURCE_DIR/feeds/packages" rev-parse HEAD)" = "$PACKAGES_COMMIT" || die 'packages feed is not pinned'
 test "$(git -C "$SOURCE_DIR/feeds/luci" rev-parse HEAD)" = "$LUCI_COMMIT" || die 'LuCI feed is not pinned'
-test "$(git -C "$SOURCE_DIR/package/feeds/daede" rev-parse HEAD)" = "$DAEDE_COMMIT" || die 'daede feed is not pinned'
+test "$(git -C "$SOURCE_DIR/package/feeds/daed" rev-parse HEAD)" = "$DAED_COMMIT" || die 'daed (QiuSimons) feed is not pinned'
 
 policy_log=$(mktemp "${TMPDIR:-/tmp}/e87n-policy.XXXXXX")
 trap 'rm -f "$policy_log"' EXIT

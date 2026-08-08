@@ -215,7 +215,7 @@ while read -r package _; do
   esac
   if test "$PROFILE" = rescue; then
     case "$package" in
-      dae|daed|luci-app-daede|luci-app-openclash|luci-app-passwall|adguardhome|tailscale|tailscaled|python3|python3-*|vlmcsd|luci-app-vlmcsd|bridger|kmod-wireguard|wireguard-tools|luci-proto-wireguard|kmod-sched-bpf|kmod-veth|kmod-xdp-sockets-diag|kmod-tun|kmod-nft-socket|kmod-nft-tproxy|nvme-cli|smartmontools|ethtool|ip-full|iperf3|tcpdump|usbutils|pciutils|ddns-scripts-cloudflare)
+      dae|daed|luci-app-daed|luci-app-daede|luci-app-openclash|luci-app-passwall|adguardhome|tailscale|tailscaled|python3|python3-*|vlmcsd|luci-app-vlmcsd|bridger|kmod-wireguard|wireguard-tools|luci-proto-wireguard|kmod-sched-bpf|kmod-veth|kmod-xdp-sockets-diag|kmod-tun|kmod-nft-socket|kmod-nft-tproxy|nvme-cli|smartmontools|ethtool|ip-full|iperf3|tcpdump|usbutils|pciutils|ddns-scripts-cloudflare)
         die "rescue manifest contains forbidden package $package" ;;
     esac
   fi

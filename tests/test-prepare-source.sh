@@ -35,8 +35,8 @@ fi
 grep -Fq 'test "$(wc -l <"$feeds_conf")" -eq 4' scripts/prepare-source.sh
 grep -Fq './scripts/feeds update -a' scripts/prepare-source.sh
 grep -Fq './scripts/feeds install -a' scripts/prepare-source.sh
-grep -Fq 'git clone --filter=blob:none --no-tags "$DAEDE_REPO"' scripts/prepare-source.sh
-grep -Fq 'package/feeds/daede" checkout --detach "$DAEDE_COMMIT"' scripts/prepare-source.sh
+grep -Fq 'git clone --filter=blob:none --no-tags "$DAED_REPO"' scripts/prepare-source.sh
+grep -Fq 'package/feeds/daed" checkout --detach "$DAED_COMMIT"' scripts/prepare-source.sh
 grep -Fq 'package/feeds/luci-app-openclash' scripts/prepare-source.sh
 grep -Fq 'OPENCLASH_COMMIT' scripts/prepare-source.sh
 grep -Fq 'apply_repo_overlays "$SOURCE_DIR"' scripts/prepare-source.sh
@@ -45,9 +45,12 @@ grep -Fq 'rm -rf "$SOURCE_DIR/tmp"' scripts/prepare-source.sh
 grep -Fq '"$SOURCE_DIR" rev-parse HEAD)' scripts/prepare-source.sh
 grep -Fq '"$SOURCE_DIR/feeds/packages" rev-parse HEAD)' scripts/prepare-source.sh
 grep -Fq '"$SOURCE_DIR/feeds/luci" rev-parse HEAD)' scripts/prepare-source.sh
-grep -Fq '"$SOURCE_DIR/package/feeds/daede" rev-parse HEAD)' scripts/prepare-source.sh
+grep -Fq '"$SOURCE_DIR/package/feeds/daed" rev-parse HEAD)' scripts/prepare-source.sh
 grep -Fq 'feeds/passwall" rev-parse HEAD)' scripts/prepare-source.sh
 if grep -Fq 'feeds/istore' scripts/prepare-source.sh; then
+  exit 1
+fi
+if grep -Eq 'DAEDE_|feeds/daede|luci-app-daede' scripts/prepare-source.sh versions.env; then
   exit 1
 fi
 
