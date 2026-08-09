@@ -64,6 +64,14 @@ test -n "$wing_cleanup_line"
 test -n "$wing_clone_line"
 test "$daed_extract_line" -lt "$wing_cleanup_line"
 test "$wing_cleanup_line" -lt "$wing_clone_line"
+grep -Fq 'NODE_VERSION:=v24.12.0' "$daed_overlay"
+grep -Fq 'pnpm build --filter daed' "$daed_overlay"
+grep -Fq 'test -f $(DAED_BUILD_DIR)/apps/web/dist/index.html' "$daed_overlay"
+grep -Fq 'cp -rf $(DAED_BUILD_DIR)/apps/web/dist/* $(PKG_BUILD_DIR)/webrender/web' "$daed_overlay"
+grep -Fq 'test -f $(PKG_BUILD_DIR)/webrender/web/index.html' "$daed_overlay"
+if grep -Eq 'WEB_FILE|Download/daed-web|releases/download/v1\.27\.0' "$daed_overlay"; then
+  exit 1
+fi
 
 empty_repo=$(mktemp -d)
 trap 'rm -rf "$empty_repo"' EXIT
