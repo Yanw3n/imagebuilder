@@ -2,11 +2,9 @@
 #
 # Copyright (C) 2023 ImmortalWrt.org
 #
-# E87N overlay: keep QiuSimons wing/core pins and BTF choice, but embed the
-# prebuilt daed web UI from GitHub releases. The upstream QiuSimons Build/Prepare
-# builds the UI with pnpm without `set -e`, so a failed/empty frontend install
-# still stamps prepare and later fails with:
-#   webrender.go: pattern web: cannot embed directory web: contains no embeddable files
+# E87N overlay: keep QiuSimons daed/wing/core pins and BTF choice, and build the
+# web UI from the same pinned daed source. Strict error handling and explicit
+# artifact checks prevent an empty frontend from being accepted.
 
 include $(TOPDIR)/rules.mk
 
@@ -100,14 +98,9 @@ define Package/daed/conffiles
 /etc/config/daed
 endef
 
-# Prebuilt UI from daeuniverse/daed v1.27.0 (same asset immortalwrt packages uses).
-WEB_FILE:=$(PKG_NAME)-web-1.27.0.zip
-define Download/daed-web
-  URL:=https://github.com/daeuniverse/daed/releases/download/v1.27.0
-  URL_FILE:=web.zip
-  FILE:=$(WEB_FILE)
-  HASH:=da8755fb2cabfab392854e807e385b12d9e9842d6c8b5e347284d1ae0e582bfc
-endef
+NODE_VERSION:=v24.12.0
+NODE_DIST:=node-$(NODE_VERSION)-linux-x64
+NODE_URL:=https://nodejs.org/dist/$(NODE_VERSION)/$(NODE_DIST).tar.xz
 
 define Build/Prepare
 	( set -euo pipefail ; \
@@ -130,9 +123,20 @@ define Build/Prepare
 			go mod tidy ; \
 			wget -qO default.pgo "https://github.com/QiuSimons/luci-app-dae/raw/refs/heads/kix/dae/pprof/default.pgo" ; \
 		popd ; \
-		mkdir -p $(PKG_BUILD_DIR)/webrender ; \
-		unzip -q -d $(PKG_BUILD_DIR)/webrender/ $(DL_DIR)/$(WEB_FILE) ; \
+		mkdir -p $(DAED_BUILD_DIR)/.node_tmp/config ; \
+		wget -qO - "$(NODE_URL)" | tar -xJ -C $(DAED_BUILD_DIR)/.node_tmp --strip-components=1 ; \
+		export PATH="$(DAED_BUILD_DIR)/.node_tmp/bin:$$$$PATH" ; \
+		export XDG_CONFIG_HOME="$(DAED_BUILD_DIR)/.node_tmp/config" ; \
+		npm install -g pnpm ; \
+		pushd $(DAED_BUILD_DIR) ; \
+			pnpm install ; \
+			pnpm build --filter daed ; \
+		popd ; \
+		test -f $(DAED_BUILD_DIR)/apps/web/dist/index.html ; \
+		mkdir -p $(PKG_BUILD_DIR)/webrender/web ; \
+		cp -rf $(DAED_BUILD_DIR)/apps/web/dist/* $(PKG_BUILD_DIR)/webrender/web ; \
 		test -f $(PKG_BUILD_DIR)/webrender/web/index.html ; \
+		find $(PKG_BUILD_DIR)/webrender/web -type f -name "*.map" -delete ; \
 		find $(PKG_BUILD_DIR)/webrender/web -type f -size +4k ! -name "*.gz" ! -name "*.woff"  ! -name "*.woff2" -exec sh -c '\
 			gzip -9 -k "{}"; \
 			if [ "$$$$(stat -c %s "{}")" -lt "$$$$(stat -c %s "{}.gz")" ]; then \
@@ -141,6 +145,7 @@ define Build/Prepare
 				rm "{}"; \
 			fi' \
 		";" ; \
+		rm -rf $(DAED_BUILD_DIR)/.node_tmp ; \
 	)
 endef
 
@@ -184,6 +189,5 @@ define Package/daed/install
 	$(INSTALL_BIN) $(CURDIR)/files/daed.init $(1)/etc/init.d/daed
 endef
 
-$(eval $(call Download,daed-web))
 $(eval $(call GoBinPackage,daed))
 $(eval $(call BuildPackage,daed))
