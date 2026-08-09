@@ -54,16 +54,16 @@ if grep -Eq 'DAEDE_|feeds/daede|luci-app-daede' scripts/prepare-source.sh versio
   exit 1
 fi
 
-daed_overlay=\"device/edgepi-e87n/source-overlay/package/feeds/daed/daed/Makefile\"
-test -f \"$daed_overlay\"
-daed_extract_line=$(grep -nF '$(TAR) --strip-components=1 -C $(DAED_BUILD_DIR)' \"$daed_overlay\" | cut -d: -f1)
-wing_cleanup_line=$(grep -nF 'rm -rf $(PKG_BUILD_DIR) ; \' \"$daed_overlay\" | cut -d: -f1)
-wing_clone_line=$(grep -nF 'git clone https://github.com/daeuniverse/dae-wing $(PKG_BUILD_DIR) ; \' \"$daed_overlay\" | cut -d: -f1)
-test -n \"$daed_extract_line\"
-test -n \"$wing_cleanup_line\"
-test -n \"$wing_clone_line\"
-test \"$daed_extract_line\" -lt \"$wing_cleanup_line\"
-test \"$wing_cleanup_line\" -lt \"$wing_clone_line\"
+daed_overlay="device/edgepi-e87n/source-overlay/package/feeds/daed/daed/Makefile"
+test -f "$daed_overlay"
+daed_extract_line=$(grep -nF '$(TAR) --strip-components=1 -C $(DAED_BUILD_DIR)' "$daed_overlay" | cut -d: -f1)
+wing_cleanup_line=$(grep -nF 'rm -rf $(PKG_BUILD_DIR) ;' "$daed_overlay" | cut -d: -f1)
+wing_clone_line=$(grep -nF 'git clone https://github.com/daeuniverse/dae-wing $(PKG_BUILD_DIR) ;' "$daed_overlay" | cut -d: -f1)
+test -n "$daed_extract_line"
+test -n "$wing_cleanup_line"
+test -n "$wing_clone_line"
+test "$daed_extract_line" -lt "$wing_cleanup_line"
+test "$wing_cleanup_line" -lt "$wing_clone_line"
 
 empty_repo=$(mktemp -d)
 trap 'rm -rf "$empty_repo"' EXIT
