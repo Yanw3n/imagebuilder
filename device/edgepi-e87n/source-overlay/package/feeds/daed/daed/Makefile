@@ -99,6 +99,7 @@ define Package/daed/conffiles
 endef
 
 NODE_VERSION:=v24.12.0
+PNPM_VERSION:=10.24.0
 NODE_DIST:=node-$(NODE_VERSION)-linux-x64
 NODE_URL:=https://nodejs.org/dist/$(NODE_VERSION)/$(NODE_DIST).tar.xz
 
@@ -127,7 +128,8 @@ define Build/Prepare
 		wget -qO - "$(NODE_URL)" | tar -xJ -C $(DAED_BUILD_DIR)/.node_tmp --strip-components=1 ; \
 		export PATH="$(DAED_BUILD_DIR)/.node_tmp/bin:$$$$PATH" ; \
 		export XDG_CONFIG_HOME="$(DAED_BUILD_DIR)/.node_tmp/config" ; \
-		npm install -g pnpm ; \
+		npm install -g pnpm@$(PNPM_VERSION) ; \
+		pnpm --version | grep -qx "$(PNPM_VERSION)" ; \
 		pushd $(DAED_BUILD_DIR) ; \
 			pnpm install ; \
 			pnpm build --filter daed ; \
