@@ -131,7 +131,7 @@ define Build/Prepare
 		npm install -g pnpm@$(PNPM_VERSION) ; \
 		pnpm --version | grep -qx "$(PNPM_VERSION)" ; \
 		pushd $(DAED_BUILD_DIR) ; \
-			pnpm install ; \
+			pnpm install --no-frozen-lockfile ; \
 			pnpm build --filter daed ; \
 		popd ; \
 		test -f $(DAED_BUILD_DIR)/apps/web/dist/index.html ; \
