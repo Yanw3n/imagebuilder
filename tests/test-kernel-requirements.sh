@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016
 set -euo pipefail
-trap 'rc=$?; printf "FAIL: %s:%s: %s (exit %s)\n" "${BASH_SOURCE[0]}" "$LINENO" "$BASH_COMMAND" "$rc" >&2; exit "$rc"' ERR
+
+report_failure() {
+	local rc=$1 line=$2 command=$3
+	printf 'FAIL: %s:%s: %s (exit %s)\n' "${BASH_SOURCE[0]}" "$line" "$command" "$rc" >&2
+	exit "$rc"
+}
+trap 'report_failure "$?" "$LINENO" "$BASH_COMMAND"' ERR
 
 repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo_root"
