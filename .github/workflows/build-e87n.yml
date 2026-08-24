@@ -127,7 +127,7 @@ jobs:
           bash tests/test-config-fragments.sh
           bash tests/test-e87n-platform.sh
           bash tests/test-fancontrol-package.sh
-          bash tests/test-kernel-requirements.sh
+          bash -x tests/test-kernel-requirements.sh
           bash tests/test-prepare-source.sh
           bash tests/test-repository-safety.sh
           bash tests/test-workflow.sh
