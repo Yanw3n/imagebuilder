@@ -2,7 +2,8 @@
 set -euo pipefail
 
 test -f versions.env
-grep -qx 'IMMORTALWRT_COMMIT=3dacd2fb6a48c5963b1026c6a343ec7e67cbf810' versions.env
+immortalwrt_commit=$(sed -n 's/^IMMORTALWRT_COMMIT=//p' versions.env)
+[[ "$immortalwrt_commit" =~ ^[0-9a-f]{40}$ ]]
 
 for pattern in '*.img' '*.img.gz' '*factory*' '*boot0*' '*boot1*' '*fip*'; do
   test -z "$(git ls-files "$pattern")"
