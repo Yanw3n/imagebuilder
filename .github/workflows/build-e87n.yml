@@ -204,7 +204,7 @@ jobs:
 
   release:
     needs: [plan, build]
-    if: ${{ inputs.profiles == 'both' && inputs.publish_release == true }}
+    if: ${{ inputs.publish_release == true && inputs.profiles != 'rescue' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -217,6 +217,7 @@ jobs:
           path: release-input/full
 
       - name: Download rescue profile
+        if: ${{ inputs.profiles == 'both' }}
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: e87n-rescue
@@ -242,6 +243,7 @@ jobs:
           popd
 
       - name: Verify downloaded rescue profile
+        if: ${{ inputs.profiles == 'both' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -260,7 +262,25 @@ jobs:
           grep -qx 'PROFILE=rescue' BUILD-MANIFEST.txt
           popd
 
-      - name: Create collision-safe validated release
+      - name: Create validated full release
+        if: ${{ inputs.profiles == 'full' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          short_sha=${GITHUB_SHA:0:12}
+          tag="e87n-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-$short_sha"
+          title="Validated E87N full firmware $short_sha (run $GITHUB_RUN_ID.$GITHUB_RUN_ATTEMPT)"
+          [[ "$tag" =~ ^e87n-[0-9]+-[0-9]+-[0-9a-f]{12}$ ]]
+          gh release create "$tag" \
+            "release-input/full/edgepi-e87n-immortalwrt-25.12-full-sysupgrade.bin" \
+            --target "$GITHUB_SHA" \
+            --title "$title" \
+            --notes 'Validated full E87N sysupgrade image. Verify the complete metadata and SHA256SUMS in the matching Actions artifact.'
+
+      - name: Create validated combined release
+        if: ${{ inputs.profiles == 'both' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}

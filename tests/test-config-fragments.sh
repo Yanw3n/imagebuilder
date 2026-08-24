@@ -325,6 +325,8 @@ for symbol in \
 	CONFIG_PACKAGE_luci-app-daed \
 	CONFIG_PACKAGE_luci-app-openclash \
 	CONFIG_PACKAGE_luci-app-passwall \
+	CONFIG_PACKAGE_kmod-usb-net-rndis \
+	CONFIG_PACKAGE_luci-app-upnp \
 	CONFIG_PACKAGE_adguardhome \
 	CONFIG_PACKAGE_kmod-wireguard \
 	CONFIG_PACKAGE_wireguard-tools \

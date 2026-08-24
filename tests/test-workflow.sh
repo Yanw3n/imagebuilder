@@ -126,7 +126,7 @@ check(jobs["build"].get("needs") == "plan", "build must need plan")
 check(jobs["release"].get("needs") == ["plan", "build"], "release must need plan and aggregate matrix build")
 check(jobs["build"].get("runs-on") == "ubuntu-24.04", "build runner must be ubuntu-24.04")
 check(jobs["build"].get("timeout-minutes") == 350, "build timeout must be 350 minutes")
-check(jobs["release"].get("if") == "${{ inputs.profiles == 'both' && inputs.publish_release == true }}",
+check(jobs["release"].get("if") == "${{ inputs.publish_release == true && inputs.profiles != 'rescue' }}",
       "release condition is not exact")
 check(jobs["build"].get("strategy", {}).get("matrix", {}).get("profile") ==
       "${{ fromJSON(needs.plan.outputs.profiles) }}", "profile matrix expression is not exact")
@@ -270,6 +270,9 @@ for profile in ("full", "rescue"):
         "name": f"e87n-{profile}",
         "path": f"release-input/{profile}",
     }, f"{profile} download path/name is not exact")
+check("if" not in release_steps["Download full profile"], "full download must always run in a publishable release")
+check(release_steps["Download rescue profile"].get("if") == "${{ inputs.profiles == 'both' }}",
+      "rescue download must run only for the combined release")
 verify_gate(
     release_steps["Verify downloaded full profile"],
     "full release verification gate",
@@ -284,15 +287,26 @@ verify_gate(
     r"profile_dir='release-input/rescue'",
     "rescue",
 )
-release_create = release_steps["Create collision-safe validated release"]
-check(release_create.get("env") == {"GH_TOKEN": "${{ github.token }}"}, "release must use only github.token")
-release_lines = flat_executable_lines(release_create.get("run", ""), "release creation")
-require_ordered(release_lines, [
-    r'set -euo pipefail',
-    r'short_sha=\$\{GITHUB_SHA:0:12\}',
-    r'tag="e87n-\$\{GITHUB_RUN_ID\}-\$\{GITHUB_RUN_ATTEMPT\}-\$short_sha"',
-    r'gh release create "\$tag" "release-input/full/edgepi-e87n-immortalwrt-25\.12-full-sysupgrade\.bin" "release-input/rescue/edgepi-e87n-immortalwrt-25\.12-rescue-sysupgrade\.bin" --target "\$GITHUB_SHA" --title "\$title" --notes .+',
-], "release creation")
+check(release_steps["Verify downloaded rescue profile"].get("if") == "${{ inputs.profiles == 'both' }}",
+      "rescue verification must run only for the combined release")
+
+for step_name, condition, assets in (
+    ("Create validated full release", "${{ inputs.profiles == 'full' }}",
+     r'"release-input/full/edgepi-e87n-immortalwrt-25\.12-full-sysupgrade\.bin"'),
+    ("Create validated combined release", "${{ inputs.profiles == 'both' }}",
+     r'"release-input/full/edgepi-e87n-immortalwrt-25\.12-full-sysupgrade\.bin" "release-input/rescue/edgepi-e87n-immortalwrt-25\.12-rescue-sysupgrade\.bin"'),
+):
+    release_create = release_steps[step_name]
+    check(release_create.get("if") == condition, f"{step_name} condition is not exact")
+    check(release_create.get("env") == {"GH_TOKEN": "${{ github.token }}"},
+          f"{step_name} must use only github.token")
+    release_lines = flat_executable_lines(release_create.get("run", ""), step_name)
+    require_ordered(release_lines, [
+        r'set -euo pipefail',
+        r'short_sha=\$\{GITHUB_SHA:0:12\}',
+        r'tag="e87n-\$\{GITHUB_RUN_ID\}-\$\{GITHUB_RUN_ATTEMPT\}-\$short_sha"',
+        rf'gh release create "\$tag" {assets} --target "\$GITHUB_SHA" --title "\$title" --notes .+',
+    ], step_name)
 check("secrets." not in raw, "workflow references an external secret")
 PY
 
