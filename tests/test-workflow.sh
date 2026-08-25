@@ -306,7 +306,7 @@ for step_name, condition, assets in (
         r'set -euo pipefail',
         r'short_sha=\$\{GITHUB_SHA:0:12\}',
         r'tag="e87n-\$\{GITHUB_RUN_ID\}-\$\{GITHUB_RUN_ATTEMPT\}-\$short_sha"',
-        rf'gh release create "\$tag" {assets} --target "\$GITHUB_SHA" --title "\$title" --notes .+',
+        rf'gh release create "\$tag" --repo "\$GITHUB_REPOSITORY" {assets} --target "\$GITHUB_SHA" --title "\$title" --notes .+',
     ], step_name)
 check("secrets." not in raw, "workflow references an external secret")
 PY
