@@ -129,6 +129,7 @@ jobs:
           bash tests/test-fancontrol-package.sh
           bash tests/test-kernel-requirements.sh
           bash tests/test-prepare-source.sh
+          sh tests/test-rust-toolchain-policy.sh
           bash tests/test-repository-safety.sh
           bash tests/test-workflow.sh
 

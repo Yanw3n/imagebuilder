@@ -1,0 +1,18 @@
+From: EdgePi E87N firmware build <noreply@example.invalid>
+Date: Tue, 25 Aug 2026 00:00:00 +0800
+Subject: [PATCH] rust: disable ephemeral CI LLVM downloads
+
+Rust stable source builds retain their source tarballs longer than their CI LLVM
+artifacts. Once those artifacts are pruned, download-ci-llvm fails with HTTP 404.
+Build LLVM from the pinned Rust source instead so the firmware build remains
+reproducible after the temporary CI artifacts expire.
+---
+ feeds/packages/lang/rust/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/feeds/packages/lang/rust/Makefile b/feeds/packages/lang/rust/Makefile
+--- a/feeds/packages/lang/rust/Makefile
++++ b/feeds/packages/lang/rust/Makefile
+@@ -79 +79 @@
+-	--set=llvm.download-ci-llvm=true \
++	--set=llvm.download-ci-llvm=false \

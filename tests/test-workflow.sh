@@ -197,6 +197,7 @@ require_ordered(static_lines, [
     r'bash tests/test-fancontrol-package\.sh',
     r'bash tests/test-kernel-requirements\.sh',
     r'bash tests/test-prepare-source\.sh',
+    r'sh tests/test-rust-toolchain-policy\.sh',
     r'bash tests/test-repository-safety\.sh',
     r'bash tests/test-workflow\.sh',
 ], "static gate")
